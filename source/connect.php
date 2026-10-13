@@ -13,7 +13,8 @@ try{
             title TEXT NOT NULL,
             atype TEXT NOT NULL,
             published TEXT NOT NULL, 
-            rating INT NOT NULL 
+            rating INT NOT NULL, 
+            createdById INT NOT NULL 
         ); 
 
         CREATE TABLE IF NOT EXISTS users (

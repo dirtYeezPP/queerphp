@@ -19,17 +19,22 @@
 
     <main>
         <h4>CREATE AN ANIME YOU PLING</h4>
-        <div class="createForm">
-            <input type="text" name="title" placeholder="title">
-            <input type="text" name="atype" placeholder="movie or series?">
-            <input type="text" name="published" placeholder="published when?">
-            <input type="text" name="rate" placeholder="your rating">
+        <div class="createForm" id="createForm">
+            <input type="text" id="title" name="title" placeholder="title">
+            <input type="text" id="atype" name="atype" placeholder="movie or series?">
+            <input type="text" id="published" name="published" placeholder="published when?">
+            <input type="text" id="rating" name="rating" placeholder="your rating">
             <input type="submit" value="CREATE">
         </div>
 
         <div id="responseMessage" style="border:2px solid purple;">
             <!-- response or success message will show here  -->
         </div>
+
+        <div class="aPodium" id="aPod">
+            
+        </div>
+
     </main>
 
     <footer>
