@@ -303,5 +303,32 @@ then open http://localhost:8000/index.php in your browser.
 ## ABANDONED / REPLACED / PREVIOUS CODE 
 
 ## STOLEN CODE FROM OTHER PLACES 
+connect stuff stolen from GA 
+``` php
+
+$db = './databas/database.sqlite';
+$dsn = "sqlite:$db";
+
+try { 
+    $pdo = new \PDO($dsn);
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS cattos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            breed TEXT,
+            img TEXT
+        );
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            email TEXT,
+            hashedPassword VARCHAR(255)
+        );
+    ");
+    //echo "gay successfully";
+} catch (\PDOException $e) {
+    echo "". $e->getMessage() ."";
+}
+```
 
 
