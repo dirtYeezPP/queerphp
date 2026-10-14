@@ -1,8 +1,12 @@
 <?php 
 
-const PATH_PREFIX = "/";
-const PORT = ":8000";
-const BASE_URL = "http://localhost" . PORT . PATH_PREFIX;
+class PATHS{
+    const PATH_PREFIX = "/";
+    const RESOURCES_PATH = "/php-is-queer"; 
+    const PORT = ":8000";
+    const BASE_URL = "http://localhost" . self::PORT . self::PATH_PREFIX;
+}
+
 
 // Dont use redirect when working with AJAX... 
 
@@ -44,7 +48,7 @@ class Errors{
     public static function sendErrPath($errorCode){
         http_response_code(self::ERRORS[$errorCode]['status']); 
         echo json_encode([
-            'errorPath' => PATH_PREFIX . 'errors/' . $errorCode
+            'errorPath' => PATHS::PATH_PREFIX . 'errors/' . $errorCode
         ]); 
     }
 

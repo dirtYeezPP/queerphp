@@ -31,11 +31,16 @@ App::post("/animes", function () use ($pdo) {
     header('Content-Type: application/json');
     $newAnime = json_decode(file_get_contents('php://input'), true);
 
+    if(!isset($_FILES['img']) || $_FILES['img']['error'] != UPLOAD_ERR_OK){
+        echo json_encode(['status'=>'error', 'message'=>'youre gay']); 
+    }
+
     $req = [
         "title" => $newAnime['title'] ?? '',
         "atype" => $newAnime['atype'] ?? '',
         "published" => (int) $newAnime['published'],
         "rating" => (int) $newAnime['rating'],
+        "animeImg"=>PATHS::RESOURCES_PATH.$newAnime["animeImg"],
         "createdById" => (int) 1
     ];
 
@@ -45,7 +50,7 @@ App::post("/animes", function () use ($pdo) {
     } 
 
     try{
-        $sql = "INSERT INTO animes (title, atype, published, rating, createdById) VALUES (:title, :atype, :published, :rating, :createdById);";
+        $sql = "INSERT INTO animes (title, atype, published, rating, animeImg, createdById) VALUES (:title, :atype, :published, :rating, :img, :createdById);";
         $pdo->prepare($sql)->execute($req);
 
         http_response_code(200);

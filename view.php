@@ -43,7 +43,7 @@
                 <?php foreach ($animes as $anime): ?>
                     <div class="anime-card">
                         <div class="animeImg">
-                            <img src="/posts" alt="animeImg">
+                            <img src="/posts/<?= $anime['animeImg'] ?>" alt="animeImg">
                         </div>
                         <h3><?= htmlspecialchars($anime['title']) ?></h3>
                         <p>Type:<?= htmlspecialchars($anime['atype']) ?></p>

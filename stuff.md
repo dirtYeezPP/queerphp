@@ -1032,3 +1032,17 @@ App::get("/animes", function () use($pdo) {
             <?php endif; ?>
         </div>
 ```
+
+
+``` php
+echo json_encode(['status' => 'success', 'redirectUrl' => '/animes']);
+```
+
+``` js
+success: function (response) {
+    if (response.status === 'success') {
+        // Let the frontend handle the navigation
+        window.location.href = response.redirectUrl; 
+    }
+}
+```
