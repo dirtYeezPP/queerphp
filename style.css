@@ -1,0 +1,16 @@
+*{
+    margin: 0; 
+    box-sizing: border-box;
+}
+
+:root{
+    --card-background: rgb(194, 157, 194);  
+}
+
+.anime-card{
+    background-color: var(--card-background);
+    max-width: max-content;
+    padding:10px;
+}
+
+

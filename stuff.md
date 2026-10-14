@@ -990,3 +990,45 @@ $.ajax({
             }
         }); 
 ```
+
+
+
+``` php
+App::get("/animes", function () use($pdo) {
+    $stmt = $pdo->query("SELECT id, title, atype, published, rating, createdById FROM animes"); 
+    $animes = []; 
+    while ($anime = $stmt->fetch(PDO::FETCH_ASSOC)){
+        $animes[] = [
+            'id' => $anime['id'],
+            'title' => $anime['title'],
+            'atype' => $anime['atype'],
+            'published' => $anime['published'],
+            'rating' => $anime['rating'], 
+            'createdById' => $anime['createdById']
+        ];
+    } 
+
+    // Include the view so it can use the $animes array
+    include('view.php');
+});
+```
+
+``` php
+<div class="aPodium" id="aPod">
+            <?php if (!empty($animes)): ?>
+                
+                <?php foreach ($animes as $anime): ?>
+                    <div class="anime-card" style="border: 1px solid #ccc; margin-bottom: 10px; padding: 10px;">
+                        <!-- htmlspecialchars prevents XSS attacks if users type malicious code into the form -->
+                        <h3><?= htmlspecialchars($anime['title']) ?></h3>
+                        <p><strong>Type:</strong> <?= htmlspecialchars($anime['atype']) ?></p>
+                        <p><strong>Published:</strong> <?= htmlspecialchars($anime['published']) ?></p>
+                        <p><strong>Rating:</strong> <?= htmlspecialchars($anime['rating']) ?>/10</p>
+                    </div>
+                <?php endforeach; ?>
+
+            <?php else: ?>
+                <p>No animes found. Be the first to create one!</p>
+            <?php endif; ?>
+        </div>
+```

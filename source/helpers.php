@@ -4,20 +4,22 @@ const PATH_PREFIX = "/";
 const PORT = ":8000";
 const BASE_URL = "http://localhost" . PORT . PATH_PREFIX;
 
-class Res{
-    public static function redirect($path){
-        header("Location: " . BASE_URL . $path); 
-        exit; 
-    }
-}
+// Dont use redirect when working with AJAX... 
 
-class Auth{
-    public static function loginRequired(){
-        if(!isset($_SESSION['id'])){
-            Res::redirect("auth/login"); // change later 
-        }
-    }
-}
+// class Res{
+//     public static function redirect($path){
+//         header("Location: " . BASE_URL . $path); 
+//         exit; 
+//     }
+// }
+
+// class Auth{
+//     public static function loginRequired(){
+//         if(!isset($_SESSION['id'])){
+//             Res::redirect("auth/login"); // change later 
+//         }
+//     }
+// }
 
 class Errors{
     const ERRORS = [

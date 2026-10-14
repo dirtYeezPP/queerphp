@@ -6,7 +6,8 @@ $(document).ready(function () {
             title: $('#title').val(),
             atype: $('#atype').val(),
             published: $('#published').val(),
-            rating: $('#rating').val()
+            rating: $('#rating').val(),
+            animeImg: $('#animeImg').val()
         }
 
         $.ajax({

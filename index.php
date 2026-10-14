@@ -9,8 +9,22 @@ App::get("/", function () {
     include('view.php');
 });
 
-App::get("/animes", function () {
+App::get("/animes", function () use($pdo) {
 
+    $stmt = $pdo->query("SELECT id, title, atype, published, rating, createdById FROM animes"); 
+    $animes = []; 
+    while ($anime = $stmt->fetch(PDO::FETCH_ASSOC)){
+        $animes[] = [
+            'id' => $anime['id'],
+            'title'=>$anime['title'],
+            'atype'=>$anime['atype'],
+            'published'=>$anime['published'],
+            'rating'=>$anime['rating'],
+            'createdById'=>$anime['createdById']
+        ];
+    }
+
+    include("view.php");
 });
 
 App::post("/animes", function () use ($pdo) {

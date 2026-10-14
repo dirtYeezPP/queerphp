@@ -14,6 +14,7 @@ try{
             atype TEXT NOT NULL,
             published TEXT NOT NULL, 
             rating INT NOT NULL, 
+            img TEXT,
             createdById INT NOT NULL 
         ); 
 
