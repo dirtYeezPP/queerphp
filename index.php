@@ -9,34 +9,46 @@ App::get("/", function () {
     include('view.php');
 });
 
-App::get("/animes", function () {});
+App::get("/animes", function () {
+
+});
 
 App::post("/animes", function () use ($pdo) {
     header('Content-Type: application/json');
+    $newAnime = json_decode(file_get_contents('php://input'), true);
 
     $req = [
-        'id'=>'s_'.uniqid(), 
-        'title' => $_POST['title'],
-        'atype' => $_POST['atype'],
-        'published' => $_POST['published'],
-        'rating' => $_POST['rating'],
-        'postedById' => 1
+        "title" => $newAnime['title'] ?? '',
+        "atype" => $newAnime['atype'] ?? '',
+        "published" => (int) $newAnime['published'],
+        "rating" => (int) $newAnime['rating'],
+        "createdById" => (int) 1
     ];
 
-    $sql = "INSERT INTO animes (id, title, atype, published, rating, postedById) VALUES (:id, :title, :atype, :published, :rating, :postedById)";
-    $pdo->prepare($sql)->execute($req);
-    Res::redirect("animes");
-
     if (empty($req['title']) || empty($req['atype']) || empty($req['published']) || empty($req['rating'])) {
-        Errors::sendErrPath('ERR_INVALID_DATA');
-        Res::redirect('errors/ERR_INVALID_DATA');
-    } else {
+        Errors::sendJsonFormatErr('ERR_INVALID_DATA'); 
+        exit; 
+    } 
+
+    try{
+        $sql = "INSERT INTO animes (title, atype, published, rating, createdById) VALUES (:title, :atype, :published, :rating, :createdById);";
+        $pdo->prepare($sql)->execute($req);
+
         http_response_code(200);
         echo json_encode([
             'status'=>'success',
-            'Location' => 'http://localhost:8000/animes'
+            'message'=>'Success!!!!'
         ]);
+        exit;
+    } catch (Exception $e){
+        http_response_code(500);
+        echo json_encode(['status'=>'error', 'message'=>'Databaase error']); 
+        exit; 
     }
+
+
+
+    Res::redirect("/animes"); 
 });
 
 App::delete("/animes", function () {});

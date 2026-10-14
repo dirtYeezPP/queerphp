@@ -794,3 +794,199 @@ get('/errors/$errorCode', function($errorCode) use($renderer){
     echo $renderer->renderFile('/errors.pug', ['errorCode' => $errorCode]);
 });
 ```
+
+
+
+``` js
+$(document).ready(function () {
+    $("#createForm").on('submit', function (e) {
+        e.preventDefault();
+
+        const formData = {
+            title: $('#title').val(),
+            atype: $('#atype').val(),
+            published: $('#published').val(),
+            rating: $('#rating').val()
+        };
+
+        $.ajax({
+            url: '/animes', // Fixed: Point to the router endpoint, not index.php
+            type: 'POST',
+            contentType: 'application/json', // Fixed: Tell the server we are sending JSON
+            data: JSON.stringify(formData),  // Fixed: Convert object to JSON string
+            dataType: 'json',
+
+            success: function (response) {
+                if (response.status === 'success') {
+                    $('#responseMessage').css('color', 'purple').text(response.message);
+                    $('#createForm')[0].reset();
+                } else {
+                    $('#responseMessage').css('color', 'red').text(response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                // Tip: logging xhr.responseText helps debug server errors
+                console.error(xhr.responseText);
+                $('#responseMessage').css('color', 'red').text('Server Communication fail.');
+            }
+        });
+    });
+});
+```
+
+
+``` php
+App::post("/animes", function () use ($pdo) {
+    header('Content-Type: application/json');
+    
+    // Read the incoming JSON payload
+    $newAnime = json_decode(file_get_contents('php://input'), true);
+
+    $req = [
+        "title" => $newAnime['title'] ?? '',
+        "atype" => $newAnime['atype'] ?? '',
+        "published" => isset($newAnime['published']) ? (int) $newAnime['published'] : 0,
+        "rating" => isset($newAnime['rating']) ? (int) $newAnime['rating'] : 0,
+        "createdById" => 1
+    ];
+
+    // 1. Validate
+    if (empty($req['title']) || empty($req['atype']) || empty($req['published']) || empty($req['rating'])) {
+        http_response_code(400); // Bad Request
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Invalid or missing data'
+        ]);
+        exit; // Stop execution here
+    } 
+
+    // 2. Insert into Database
+    try {
+        $sql = "INSERT INTO animes (title, atype, published, rating, createdById) VALUES (:title, :atype, :published, :rating, :createdById);";
+        $pdo->prepare($sql)->execute($req);
+        
+        // 3. Send Success Response
+        http_response_code(200);
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Success!!!!'
+        ]);
+        exit; // Stop execution. Do NOT use Res::redirect() on AJAX endpoints.
+
+    } catch (Exception $e) {
+        // Handle potential database errors
+        http_response_code(500);
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Database error'
+        ]);
+        exit;
+    }
+});
+```
+
+
+
+``` php
+class Errors {
+    const ERRORS = [
+        'ERR_MISSING_DATA' => ['status'=>400, 'message'=>'ERR: Data is missing'],
+        'ERR_INVALID_DATA'=> ['status'=>400, 'message'=>'ERR: Invalid data'],
+        'ERR_LOCKED_OUT'=>['status'=>401, 'message'=>'ERR: Not authorized'],
+        'ERR_INCORRECT_DATA'=>['status'=>401, 'message'=>'ERR_ Incorrect data'],
+        'ERR_FORBIDDEN' => ['status'=>403, 'message'=>'ERR: Forbidden'], 
+        'ERR_NOT_FOUND'=>['status'=>404, 'message'=>'ERR: Requested resource missing'],
+        'ERR_UPLOAD_FAIL'=>['status'=>422, 'message'=>'ERR: Upload fail']
+    ]; 
+
+    // Add this new method for your AJAX calls
+    public static function sendJsonErr($errorCode) {
+        $error = self::ERRORS[$errorCode];
+        http_response_code($error['status']); 
+        echo json_encode([
+            'status' => 'error',
+            'message' => $error['message']
+        ]); 
+    }
+
+    public static function sendErrPath($errorCode){
+        http_response_code(self::ERRORS[$errorCode]['status']); 
+        echo json_encode([
+            'errorPath' => PATH_PREFIX . 'errors/' . $errorCode
+        ]); 
+    }
+}
+```
+
+
+``` php 
+App::post("/animes", function () use ($pdo) {
+    header('Content-Type: application/json');
+    $newAnime = json_decode(file_get_contents('php://input'), true);
+
+    $req = [
+        "title" => $newAnime['title'] ?? '',
+        "atype" => $newAnime['atype'] ?? '',
+        "published" => isset($newAnime['published']) ? (int) $newAnime['published'] : 0,
+        "rating" => isset($newAnime['rating']) ? (int) $newAnime['rating'] : 0,
+        "createdById" => 1
+    ];
+
+    // Use your Errors class here!
+    if (empty($req['title']) || empty($req['atype']) || empty($req['published']) || empty($req['rating'])) {
+        Errors::sendJsonErr('ERR_INVALID_DATA'); 
+        exit; // Always exit after sending a response
+    } 
+
+    try {
+        $sql = "INSERT INTO animes (title, atype, published, rating, createdById) VALUES (:title, :atype, :published, :rating, :createdById);";
+        $pdo->prepare($sql)->execute($req);
+        
+        http_response_code(200);
+        echo json_encode([
+            'status'=>'success',
+            'message'=>'Success!!!!'
+        ]);
+        exit;
+
+    } catch (Exception $e) {
+        // You could also create an 'ERR_SERVER_FAIL' in your class and call it here
+        http_response_code(500);
+        echo json_encode(['status' => 'error', 'message' => 'Database error']);
+        exit;
+    }
+});
+```
+
+``` js
+$.ajax({
+            url: '/animes',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            dataType: 'json',
+
+            success: function (response) {
+                // This runs on 200 HTTP codes
+                if (response.status === 'success') {
+                    $('#responseMessage').css('color', 'purple').text(response.message);
+                    $('#createForm')[0].reset();
+                }
+            },
+            error: function (xhr) {
+                // This runs on 400+ HTTP codes triggered by Errors::sendJsonErr
+                let errorMessage = 'Server Communication fail.';
+                
+                if (xhr.responseText) {
+                    try {
+                        const errData = JSON.parse(xhr.responseText);
+                        errorMessage = errData.message; // Grabs the message from your PHP array
+                    } catch(e) {
+                        console.error("Could not parse error response");
+                    }
+                }
+                
+                $('#responseMessage').css('color', 'red').text(errorMessage);
+            }
+        }); 
+```

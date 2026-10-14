@@ -22,7 +22,7 @@
     <main>
         <h4>CREATE AN ANIME YOU PLING</h4>
         <div class="createFormDiv" id="createFormDiv">
-            <form action="" id='createForm'>
+            <form action="" id="createForm">
                 <input type="text" id="title" name="title" placeholder="title" required>
                 <input type="text" id="atype" name="atype" placeholder="movie or series?" required>
                 <input type="text" id="published" name="published" placeholder="published when?" required>

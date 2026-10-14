@@ -1,7 +1,8 @@
 <?php 
 
 const PATH_PREFIX = "/";
-const BASE_URL = "http://localhost" . PATH_PREFIX;
+const PORT = ":8000";
+const BASE_URL = "http://localhost" . PORT . PATH_PREFIX;
 
 class Res{
     public static function redirect($path){
@@ -28,6 +29,15 @@ class Errors{
         'ERR_NOT_FOUND'=>['status'=>404, 'message'=>'ERR: Requested resource missing'],
         'ERR_UPLOAD_FAIL'=>['status'=>422, 'message'=>'ERR: Upload fail']
     ]; 
+
+    public static function sendJsonFormatErr($errorCode){
+        $error = self::ERRORS[$errorCode]; 
+        http_response_code($error['status']);
+        echo json_encode([
+            'status'=> 'error',
+            'message'=>$error['message']
+        ]);
+    }
 
     public static function sendErrPath($errorCode){
         http_response_code(self::ERRORS[$errorCode]['status']); 
