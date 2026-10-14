@@ -15,6 +15,7 @@ App::post("/animes", function () use ($pdo) {
     header('Content-Type: application/json');
 
     $req = [
+        'id'=>'s_'.uniqid(), 
         'title' => $_POST['title'],
         'atype' => $_POST['atype'],
         'published' => $_POST['published'],
@@ -22,7 +23,7 @@ App::post("/animes", function () use ($pdo) {
         'postedById' => 1
     ];
 
-    $sql = "INSERT INTO animes (title, atype, published, rating, postedById) VALUES (:title, :atype, :published, :rating, :postedById)";
+    $sql = "INSERT INTO animes (id, title, atype, published, rating, postedById) VALUES (:id, :title, :atype, :published, :rating, :postedById)";
     $pdo->prepare($sql)->execute($req);
     Res::redirect("animes");
 
@@ -32,7 +33,7 @@ App::post("/animes", function () use ($pdo) {
     } else {
         http_response_code(200);
         echo json_encode([
-            'success' => true,
+            'status'=>'success',
             'Location' => 'http://localhost:8000/animes'
         ]);
     }
@@ -49,3 +50,7 @@ App::get("/auth", function () {});
 App::post("/auth/register", function () {});
 
 App::post("/auth/login", function () {});
+
+App::get('/errors/$errorCode', function($errorCode){
+
+});
