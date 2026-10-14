@@ -64,10 +64,8 @@ App::post("/animes", function () use ($pdo) {
         echo json_encode(['status'=>'error', 'message'=>'Databaase error']); 
         exit; 
     }
-
-
-
-    Res::redirect("/animes"); 
+    
+    // Res::redirect("/animes"); 
 });
 
 App::delete("/animes", function () {});
