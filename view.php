@@ -16,7 +16,7 @@
         <nav>
             <a href="">HOME</a>
             <a href="">POEMS</a>
-            <button>PROFILE</button>
+            <button id="authVisibility">PROFILE</button>
         </nav>
     </header>
 

@@ -13,4 +13,15 @@
     padding:10px;
 }
 
+.hidden{
+    display:none; 
+}
+
+#loginFormDiv{
+    display: none; 
+    
+}
+
+
+
 
