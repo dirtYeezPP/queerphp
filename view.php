@@ -31,7 +31,7 @@
                 <button type="submit">REGISTER</button>
             </form>
             <p>Already have an account?</p>
-            <button>Click here</button>
+            <button id="toggleLoginVisibility">Click here</button>
         </div>
 
         <div class="loginFormDiv" class="hidden" id="loginFormDiv">

@@ -123,6 +123,14 @@ $(document).ready(function(){
         e.preventDefault(); // Prevents the page from jumping if it's an <a> link or submitting if it's a button
         
         // This will instantly flip the visibility of both forms
-        $('#loginForm, #registerForm').toggle();
+        $('#registerForm').toggle();
+    });
+});
+$(document).ready(function(){
+    $('#toggleLoginVisibility').on('click', function(e){
+        e.preventDefault(); // Prevents the page from jumping if it's an <a> link or submitting if it's a button
+        
+        // This will instantly flip the visibility of both forms
+        $('#loginForm').toggle();
     });
 });
