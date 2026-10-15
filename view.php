@@ -48,7 +48,7 @@
             <form action="" id="createForm">
                 <input type="text" id="title" name="title" placeholder="Title" required>
                 <input type="text" id="genre" name="genre" placeholder="Genre" required>
-                <input type="text" id="poem" name="poem" placeholder="Paste poem here!" required>
+                <textarea id="poem" name="poem" placeholder="Paste poem here!" required></textarea>
                 <label for="pImg">Add a picture for the vibes!</label>
                 <input type="file" name="pImg" id="pImg">
                 <button type="submit">CREATE</button>
@@ -68,7 +68,7 @@
                         </div>
                         <h3><?= htmlspecialchars($poem['title']) ?></h3>
                         <p>Genre:<?= htmlspecialchars($poem['genre']) ?></p>
-                        <p><?= htmlspecialchars($poem['poem']) ?> </p>
+                        <p><?= nl2br(htmlspecialchars($poem['poem'])) ?></p>
                         <p>Published: <?= htmlspecialchars($poem['published']) ?> </p>
                         <p><?= htmlspecialchars($poem['pseudonym']) ?></p>
                         <p>(@<?= htmlspecialchars($poem['username']) ?>)</p> 
