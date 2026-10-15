@@ -2,19 +2,14 @@ $(document).ready(function () {
     $("#createForm").on('submit', function (e) {
         e.preventDefault();
 
-        const formData = {
-            title: $('#title').val(),
-            atype: $('#genre').val(),
-            published: $('#poem').val(),
-            animeImg: $('#pImg').val()
-        }
+        const formData = new FormData(this); 
 
         $.ajax({
             url: '/poems',
             type: 'POST',
-            contentType: 'applicaiton/json',
-            data: JSON.stringify(formData),
-            dataType: 'json',
+            contentType: false, 
+            processData: false, 
+            data: formData, 
 
             success: function (response) {
                 if (response.status === 'success') {

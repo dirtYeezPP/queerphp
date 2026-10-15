@@ -2,7 +2,7 @@
 
 class PATHS{
     const PATH_PREFIX = "/";
-    const RESOURCES_PATH = "/php-is-queer"; 
+    const RESOURCES_PATH = "/php-is-queer/posts"; 
     const PORT = ":8000";
     const BASE_URL = "http://localhost" . self::PORT . self::PATH_PREFIX;
 }

@@ -1378,3 +1378,244 @@ App::get("/poems", function () use($pdo) {
             <?php endif; ?>
         </div>
 ```
+
+
+
+``` js 
+$('#createForm').on('submit', function(e) {
+    e.preventDefault(); // Stop the page from refreshing
+
+    // This grabs the entire form, including the actual image file
+    let formData = new FormData(this); 
+
+    $.ajax({
+        url: '/your-post-route', // Update this to your actual POST route
+        type: 'POST',
+        data: formData,
+        contentType: false, // CRITICAL: Tell jQuery not to set a content type
+        processData: false, // CRITICAL: Tell jQuery not to turn the data into a string
+        success: function(response) {
+            $('#responseMessage').html("Poem and image uploaded!");
+        }
+    });
+});
+```
+
+``` php
+App::post("/poems", function () use($pdo) {
+    // 1. Grab text inputs from standard $_POST (because we used FormData)
+    $title = $_POST['title'];
+    $genre = $_POST['genre'];
+    $poem = $_POST['poem'];
+    
+    // 2. Handle the image upload
+    $imageName = "";
+    if (isset($_FILES['pImg']) && $_FILES['pImg']['error'] === UPLOAD_ERR_OK) {
+        // This gets just the clean filename, e.g., "sharkcat.jpg"
+        $imageName = basename($_FILES['pImg']['name']); 
+        
+        // Move the physical file from the temporary server folder to your actual posts folder
+        $tempPath = $_FILES['pImg']['tmp_name'];
+        $destinationPath = __DIR__ . '/posts/' . $imageName; 
+        move_uploaded_file($tempPath, $destinationPath);
+    }
+
+    // 3. Save to database using the clean $imageName
+    $stmt = $pdo->prepare("INSERT INTO poems (title, genre, poem, pImg, createdById) VALUES (?, ?, ?, ?, ?)");
+    $stmt->execute([$title, $genre, $poem, $imageName, $_SESSION['user_id']]); 
+    // Note: ensure you are passing the correct user ID above!
+});
+```
+
+``` php 
+    header('Content-Type: application/json');
+    $newPoem = json_decode(file_get_contents('php://input'), true);
+
+    $title = $_POST['title'];
+    $genre = $_POST['genre'];
+    $poem = $_POST['poem']; 
+
+    $imgName = ''; 
+    if(isset($_FILES['pImg']) || $_FILES['pImg']['error'] != UPLOAD_ERR_OK){
+        $imgName = basename($_FILES['pImg']['name']); 
+        $tempPath = $_FILES['pImg']['tmp_name'];
+        $destPath = __DIR__ . '/posts/' . $imgName; 
+        move_uploaded_file($tempPath, $destPath); 
+    }
+
+
+    if (empty($req['title']) || empty($req['poem'])) {
+        Errors::sendJsonFormatErr('ERR_INVALID_DATA'); 
+        exit; 
+    } 
+
+    try{
+        $sql = "INSERT INTO poems (title, genre, poem, pImg, published, createdById) VALUES (:title, :genre, :poem, :pImg, :published, :createdById);";
+        $pdo->prepare($sql)->execute($req);
+
+        http_response_code(200);
+        echo json_encode([
+            'status'=>'success',
+            'message'=>'Success!!!!'
+        ]);
+        exit;
+    } catch (Exception $e){
+        http_response_code(500);
+        echo json_encode(['status'=>'error', 'message'=>'Databaase error']); 
+        exit; 
+    }
+    
+    // Res::redirect("/animes");
+```
+
+
+``` php
+App::post("/poems", function () use($pdo) {
+    // Tell the browser we are sending JSON back to the AJAX request
+    header('Content-Type: application/json');
+
+    try {
+        // 1. Grab text inputs (using ?? to prevent undefined array key warnings)
+        $title = $_POST['title'] ?? '';
+        $genre = $_POST['genre'] ?? '';
+        $poem = $_POST['poem'] ?? '';
+        
+        // Ensure you have a way to get the logged-in user's ID
+        // (Make sure session_start() is called somewhere globally in your app)
+        $createdById = $_SESSION['user_id'] ?? null; 
+
+        // Basic validation
+        if (empty($title) || empty($genre) || empty($poem)) {
+            throw new Exception("Title, genre, and poem are required.");
+        }
+        if (!$createdById) {
+            throw new Exception("You must be logged in to post.");
+        }
+
+        // 2. Handle the image upload
+        $imageName = ""; // Default to empty string if no image is uploaded
+        
+        // Check if a file was actually sent and if it has no initial upload errors
+        if (isset($_FILES['pImg']) && $_FILES['pImg']['error'] !== UPLOAD_ERR_NO_FILE) {
+            
+            // Check for actual server/upload errors (e.g., file too large)
+            if ($_FILES['pImg']['error'] !== UPLOAD_ERR_OK) {
+                throw new Exception("File upload failed with error code: " . $_FILES['pImg']['error']);
+            }
+
+            // Sanitize the filename to prevent weird characters from breaking things
+            $imageName = basename($_FILES['pImg']['name']); 
+            $imageName = preg_replace("/[^a-zA-Z0-9.-]/", "_", $imageName); // Replaces spaces/weird chars with underscores
+
+            $tempPath = $_FILES['pImg']['tmp_name'];
+            $destinationPath = __DIR__ . '/posts/' . $imageName; 
+            
+            // Move the file and throw an error if it fails (e.g., folder permissions issue)
+            if (!move_uploaded_file($tempPath, $destinationPath)) {
+                throw new Exception("Failed to move the uploaded file to the posts folder.");
+            }
+        }
+
+        // 3. Save to database 
+        $stmt = $pdo->prepare("INSERT INTO poems (title, genre, poem, pImg, createdById) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$title, $genre, $poem, $imageName, $createdById]); 
+
+        // 4. Send success response back to cold.js
+        echo json_encode([
+            "success" => true,
+            "message" => "Poem successfully plinged!"
+        ]);
+
+    } catch (Exception $e) {
+        // Catch any errors thrown above, set a bad request status, and return the error message
+        http_response_code(400); 
+        echo json_encode([
+            "success" => false,
+            "message" => $e->getMessage()
+        ]);
+    }
+});
+```
+
+``` js 
+$.ajax({
+    url: '/poems', 
+    type: 'POST',
+    data: formData,
+    contentType: false, 
+    processData: false, 
+    success: function(response) {
+        // This runs if the PHP try block finishes
+        $('#responseMessage').css('color', 'green').html(response.message);
+        $('#createForm')[0].reset(); // Clears the form inputs
+    },
+    error: function(xhr) {
+        // This runs if the PHP catch block sends a 400 error
+        let res = JSON.parse(xhr.responseText);
+        $('#responseMessage').css('color', 'red').html("Error: " + res.message);
+    }
+});
+```
+
+
+``` php 
+App::post("/poems", function () use ($pdo) {
+    header('Content-Type: application/json');
+
+    // 1. Check if the file uploaded successfully
+    if (!isset($_FILES['pImg']) || $_FILES['pImg']['error'] != UPLOAD_ERR_OK) {
+        Errors::sendJsonFormatErr('ERR_INVALID_DATA');
+        exit;
+    }
+
+    $allowedExes = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
+    // 2. FIXED TYPO: Changed 'img' to 'pImg'
+    $fileName = basename($_FILES['pImg']['name']);
+    $tmpName = $_FILES['pImg']['tmp_name'];
+    $fileEx = strtolower(pathinfo($fileName, PATHINFO_EXTENSION)); 
+
+    // Validate MIME type
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mimeType = finfo_file($finfo, $tmpName);
+    finfo_close($finfo);
+
+    $allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!in_array($mimeType, $allowedMimes)) {
+        Errors::sendJsonFormatErr('ERR_INVALID_DATA');
+        exit;
+    }
+
+    // Validate Extension
+    if (!in_array($fileEx, $allowedExes)) {
+        Errors::sendJsonFormatErr('ERR_INVALID_DATA');
+        exit;
+    }
+
+    // Move the file
+    $uniqueFileName = 'posts/' . uniqid('pic_') . '.' . $fileEx;
+    if (!move_uploaded_file($_FILES['pImg']['tmp_name'], (__DIR__ . "/" . $uniqueFileName))) {
+        Errors::sendJsonFormatErr('ERR_UPLOAD_FAIL');
+        exit;
+    }
+
+    // 3. FIXED: Grab text inputs from $_POST since the frontend sent FormData
+    $req = [
+        'title' => $_POST['title'],
+        'genre' => $_POST['genre'],
+        'poem' => $_POST['poem'],
+        'pImg' => $uniqueFileName,
+        'published' => date('Y/m/d H:i:s'), // Fixed minor typo in date format (H:i:s instead of H:m:s)
+        'createdById' => 1
+    ];
+
+    $sql = "INSERT INTO poems (title, genre, poem, pImg, published, createdById) VALUES (:title, :genre, :poem, :pImg, :published, :createdById )";
+    $pdo->prepare($sql)->execute($req);
+
+    http_response_code(200);
+    echo json_encode([
+        'status' => 'success',
+        'message' => 'Success!!!!'
+    ]);
+    exit;
+});
+```
