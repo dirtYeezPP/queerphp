@@ -8,21 +8,22 @@ $dsn = "sqlite:$db";
 try{
     $pdo = new \PDO($dsn);
     $pdo->exec("
-        CREATE TABLE IF NOT EXISTS animes (
+        CREATE TABLE IF NOT EXISTS poems (
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
-            title TEXT NOT NULL,
-            atype TEXT NOT NULL,
+            title TEXT,
+            genre TEXT, 
+            poem TEXT NOT NULL, 
+            pImg TEXT,
             published TEXT NOT NULL, 
-            rating INT NOT NULL, 
-            img TEXT,
             createdById INT NOT NULL 
         ); 
 
         CREATE TABLE IF NOT EXISTS users (
             userId INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT NOT NULL,
+            pseudonym TEXT,
             email TEXT NOT NULL, 
-            hashP VARCHAR(255) NOT NULL 
+            hashedPassword VARCHAR(255) NOT NULL 
         ); 
     "); 
 } catch (\PDOException $e) {

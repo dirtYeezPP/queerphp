@@ -9,48 +9,58 @@ App::get("/", function () {
     include('view.php');
 });
 
-App::get("/animes", function () use($pdo) {
+App::get("/poems", function () use($pdo) {
 
-    $stmt = $pdo->query("SELECT id, title, atype, published, rating, createdById FROM animes"); 
-    $animes = []; 
-    while ($anime = $stmt->fetch(PDO::FETCH_ASSOC)){
-        $animes[] = [
-            'id' => $anime['id'],
-            'title'=>$anime['title'],
-            'atype'=>$anime['atype'],
-            'published'=>$anime['published'],
-            'rating'=>$anime['rating'],
-            'createdById'=>$anime['createdById']
-        ];
+    $sql = "
+    SELECT 
+        p.id, p.title, p.genre, p.poem, p.createdById,
+        u.pseudonym, u.username
+    FROM poems p 
+    LEFT JOIN users u ON p.createdById = u.id
+    "; 
+
+    $stmt = $pdo->query($sql);
+    $poems = []; 
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+        $poems[] = [
+            'id' => $row['id'],
+            'title' => $row['title'],
+            'genre' => $row['genre'],
+            'poem'=>$row['poem'],
+            'createdById'=>$row['createdById'],
+            'pseudonym'=>$row['pseudonym'],
+            'username'=>$row['username'] ?? ''
+        ]; 
     }
 
-    include("view.php");
+    include("view.php"); 
+
 });
 
-App::post("/animes", function () use ($pdo) {
+App::post("/poems", function () use ($pdo) {
     header('Content-Type: application/json');
-    $newAnime = json_decode(file_get_contents('php://input'), true);
+    $newPoem = json_decode(file_get_contents('php://input'), true);
 
     if(!isset($_FILES['img']) || $_FILES['img']['error'] != UPLOAD_ERR_OK){
         echo json_encode(['status'=>'error', 'message'=>'youre gay']); 
     }
 
     $req = [
-        "title" => $newAnime['title'] ?? '',
-        "atype" => $newAnime['atype'] ?? '',
-        "published" => (int) $newAnime['published'],
-        "rating" => (int) $newAnime['rating'],
-        "animeImg"=>PATHS::RESOURCES_PATH.$newAnime["animeImg"],
+        "title" => $newPoem['title'] ?? '',
+        "genre" => $newPoem['genre'] ?? '',
+        "poem" => (int) $newPoem['poem'],
+        "pImg"=>PATHS::RESOURCES_PATH.$newPoem["pImg"],
+        "published" => date("Y-m-d H:i:s"),
         "createdById" => (int) 1
     ];
 
-    if (empty($req['title']) || empty($req['atype']) || empty($req['published']) || empty($req['rating'])) {
+    if (empty($req['title']) || empty($req['poem'])) {
         Errors::sendJsonFormatErr('ERR_INVALID_DATA'); 
         exit; 
     } 
 
     try{
-        $sql = "INSERT INTO animes (title, atype, published, rating, animeImg, createdById) VALUES (:title, :atype, :published, :rating, :img, :createdById);";
+        $sql = "INSERT INTO animes (title, genre, poem, pImg, published, createdById) VALUES (:title, :genre, :poem, :pImg, :published, :createdById);";
         $pdo->prepare($sql)->execute($req);
 
         http_response_code(200);
@@ -68,9 +78,9 @@ App::post("/animes", function () use ($pdo) {
     // Res::redirect("/animes"); 
 });
 
-App::delete("/animes", function () {});
+App::delete("/poems", function () {});
 
-App::patch("/animes", function () {});
+App::patch("/poems", function () {});
 
 // Auth 
 

@@ -12,23 +12,23 @@
 <body>
 
     <header>
-        <h1>HELLO DEAR PLIN!</h1>
+        <h1></h1>
         <nav>
             <a href="">HOME</a>
-            <a href="">HOME1</a>
-            <a href="">HOME2</a>
+            <a href="">POEMS</a>
+            <a href="">PROFILE</a>
         </nav>
     </header>
 
     <main>
-        <h4>CREATE AN ANIME YOU PLING</h4>
+        <h4>POST A POEM, PLING-EM ALL!</h4>
         <div class="createFormDiv" id="createFormDiv">
             <form action="" id="createForm">
-                <input type="text" id="title" name="title" placeholder="title" required>
-                <input type="text" id="atype" name="atype" placeholder="movie or series?" required>
-                <input type="text" id="published" name="published" placeholder="published when?" required>
-                <input type="text" id="rating" name="rating" placeholder="your rating" required>
-                <input type="file" name="animeImg" id="animeImg">
+                <input type="text" id="title" name="title" placeholder="Title" required>
+                <input type="text" id="genre" name="genre" placeholder="Genre" required>
+                <input type="text" id="poem" name="poem" placeholder="Paste poem here!" required>
+                <label for="pImg">Add a picture for the vibes!</label>
+                <input type="file" name="pImg" id="pImg">
                 <button type="submit">CREATE</button>
             </form>
 
@@ -38,17 +38,20 @@
             <!-- response message will show here  -->
         </div>
 
-        <div class="aPodium" id="aPod">
-            <?php if (!empty($animes)): ?>
-                <?php foreach ($animes as $anime): ?>
-                    <div class="anime-card">
-                        <div class="animeImg">
-                            <img src="/posts/<?= $anime['animeImg'] ?>" alt="animeImg">
+        <div class="podium" id="pPod">
+            <?php if (!empty($poems)): ?>
+                <?php foreach ($poems as $poem): ?>
+                    <div class="poem-card">
+                        <div class="pImg">
+                            <img src="/posts/<?= $poem['pImg'] ?>" alt="pImg">
                         </div>
-                        <h3><?= htmlspecialchars($anime['title']) ?></h3>
-                        <p>Type:<?= htmlspecialchars($anime['atype']) ?></p>
-                        <p>Published: <?= htmlspecialchars($anime['published']) ?> </p>
-                        <p>Rating: <?= htmlspecialchars($anime['rating']) ?> /10</p>
+                        <h3><?= htmlspecialchars($poem['title']) ?></h3>
+                        <p>Genre:<?= htmlspecialchars($poem['genre']) ?></p>
+                        <p><?= htmlspecialchars($poem['poem']) ?> </p>
+                        <p>Published: <?= htmlspecialchars($poem['published']) ?> </p>
+                        <p><?= htmlspecialchars($poem['pseudonym']) ?></p>
+                        <p>(@<?= htmlspecialchars($poem['username']) ?>)</p> 
+
                     </div>
                 <?php endforeach; ?>
 

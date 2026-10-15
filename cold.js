@@ -4,14 +4,13 @@ $(document).ready(function () {
 
         const formData = {
             title: $('#title').val(),
-            atype: $('#atype').val(),
-            published: $('#published').val(),
-            rating: $('#rating').val(),
-            animeImg: $('#animeImg').val()
+            atype: $('#genre').val(),
+            published: $('#poem').val(),
+            animeImg: $('#pImg').val()
         }
 
         $.ajax({
-            url: '/animes',
+            url: '/poems',
             type: 'POST',
             contentType: 'applicaiton/json',
             data: JSON.stringify(formData),

@@ -1046,3 +1046,335 @@ success: function (response) {
     }
 }
 ```
+
+
+
+## ABANDONED CODE 
+``` php 
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PLINGO</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <h1></h1>
+        <nav>
+            <a href="">HOME</a>
+            <a href="">POEMS</a>
+            <a href="">PROFILE</a>
+        </nav>
+    </header>
+
+    <main>
+        <h4>POST A POEM, PLING-EM ALL!</h4>
+        <div class="createFormDiv" id="createFormDiv">
+            <form action="" id="createForm">
+                <input type="text" id="title" name="title" placeholder="Title" required>
+                <input type="text" id="genre" name="genre" placeholder="Genre" required>
+                <input type="text" id="poem" name="poem" placeholder="Paste poem here!" required>
+                <label for="pImg">Add a picture for the vibes!</label>
+                <input type="file" name="pImg" id="pImg">
+                <button type="submit">CREATE</button>
+            </form>
+
+        </div>
+
+        <div id="responseMessage" style="border:2px solid purple;">
+            <!-- response message will show here  -->
+        </div>
+
+        <div class="aPodium" id="aPod">
+            <?php if (!empty($animes)): ?>
+                <?php foreach ($animes as $anime): ?>
+                    <div class="anime-card">
+                        <div class="animeImg">
+                            <img src="/posts/<?= $anime['animeImg'] ?>" alt="animeImg">
+                        </div>
+                        <h3><?= htmlspecialchars($anime['title']) ?></h3>
+                        <p>Type:<?= htmlspecialchars($anime['atype']) ?></p>
+                        <p>Published: <?= htmlspecialchars($anime['published']) ?> </p>
+                        <p>Rating: <?= htmlspecialchars($anime['rating']) ?> /10</p>
+                    </div>
+                <?php endforeach; ?>
+
+            <?php else: ?>
+                <p>Add an anime youve watched.</p>
+            <?php endif; ?>
+        </div>
+
+    </main>
+
+    <footer>
+
+    </footer>
+
+    <script src="cold.js"></script>
+
+</body>
+
+</html> 
+```
+
+``` js 
+$(document).ready(function () {
+    $("#createForm").on('submit', function (e) {
+        e.preventDefault();
+
+        const formData = {
+            title: $('#title').val(),
+            atype: $('#atype').val(),
+            published: $('#published').val(),
+            rating: $('#rating').val(),
+            animeImg: $('#animeImg').val()
+        }
+
+        $.ajax({
+            url: '/animes',
+            type: 'POST',
+            contentType: 'applicaiton/json',
+            data: JSON.stringify(formData),
+            dataType: 'json',
+
+            success: function (response) {
+                if (response.status === 'success') {
+                    $('#responseMessage').css('color', 'purple').text(response.message);
+                    $('#createForm')[0].reset();
+                } else {
+                    $('#responseMessage').css('color', 'red').text(response.message);
+                }
+            },
+            error: function (xhr) {
+                let errorMessage = 'Server communication fail';
+                if (xhr.responseText) {
+                    try {
+                        const errData = JSON.parse(xhr.responseText);
+                        errorMessage = errData.message;
+                    } catch (e) {
+                        console.error('Couldnt parse response');
+                    }
+                }
+
+                 $('#responseMessage').css('color', 'red').text(errorMessage)
+
+                // console.error(xhr.responseText); 
+                // $('#responseMessage').css('color', 'red').text('Server Communication fail.');
+            }
+        });
+    });
+});
+```
+
+``` php
+<?php
+
+require_once 'router.php';
+require_once 'source/connect.php';
+require_once 'source/helpers.php';
+global $pdo;
+
+App::get("/", function () {
+    include('view.php');
+});
+
+App::get("/animes", function () use($pdo) {
+
+    $stmt = $pdo->query("SELECT id, title, atype, published, rating, createdById FROM animes"); 
+    $animes = []; 
+    while ($anime = $stmt->fetch(PDO::FETCH_ASSOC)){
+        $animes[] = [
+            'id' => $anime['id'],
+            'title'=>$anime['title'],
+            'atype'=>$anime['atype'],
+            'published'=>$anime['published'],
+            'rating'=>$anime['rating'],
+            'createdById'=>$anime['createdById']
+        ];
+    }
+
+    include("view.php");
+});
+
+App::post("/animes", function () use ($pdo) {
+    header('Content-Type: application/json');
+    $newAnime = json_decode(file_get_contents('php://input'), true);
+
+    if(!isset($_FILES['img']) || $_FILES['img']['error'] != UPLOAD_ERR_OK){
+        echo json_encode(['status'=>'error', 'message'=>'youre gay']); 
+    }
+
+    $req = [
+        "title" => $newAnime['title'] ?? '',
+        "atype" => $newAnime['atype'] ?? '',
+        "published" => (int) $newAnime['published'],
+        "rating" => (int) $newAnime['rating'],
+        "animeImg"=>PATHS::RESOURCES_PATH.$newAnime["animeImg"],
+        "createdById" => (int) 1
+    ];
+
+    if (empty($req['title']) || empty($req['atype']) || empty($req['published']) || empty($req['rating'])) {
+        Errors::sendJsonFormatErr('ERR_INVALID_DATA'); 
+        exit; 
+    } 
+
+    try{
+        $sql = "INSERT INTO animes (title, atype, published, rating, animeImg, createdById) VALUES (:title, :atype, :published, :rating, :img, :createdById);";
+        $pdo->prepare($sql)->execute($req);
+
+        http_response_code(200);
+        echo json_encode([
+            'status'=>'success',
+            'message'=>'Success!!!!'
+        ]);
+        exit;
+    } catch (Exception $e){
+        http_response_code(500);
+        echo json_encode(['status'=>'error', 'message'=>'Databaase error']); 
+        exit; 
+    }
+    
+    // Res::redirect("/animes"); 
+});
+
+App::delete("/animes", function () {});
+
+App::patch("/animes", function () {});
+
+// Auth 
+
+App::get("/auth", function () {});
+
+App::post("/auth/register", function () {});
+
+App::post("/auth/login", function () {});
+
+App::get('/errors/$errorCode', function($errorCode){
+
+});
+```
+
+``` php
+<?php
+
+$db = './databas/database.sqlite';
+$dsn = "sqlite:$db";
+
+// $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); 
+
+try{
+    $pdo = new \PDO($dsn);
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS animes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, 
+            title TEXT NOT NULL,
+            atype TEXT NOT NULL,
+            published TEXT NOT NULL, 
+            rating INT NOT NULL, 
+            img TEXT,
+            createdById INT NOT NULL 
+        ); 
+
+        CREATE TABLE IF NOT EXISTS users (
+            userId INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL,
+            email TEXT NOT NULL, 
+            hashP VARCHAR(255) NOT NULL 
+        ); 
+    "); 
+} catch (\PDOException $e) {
+    // echo "" . $e->getMessage() . ""; 
+    echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
+}
+
+
+```
+
+
+``` php
+App::get("/poems", function () use($pdo) {
+
+    // 1. Use a JOIN to get poems and user data at the same time
+    $sql = "
+        SELECT 
+            p.id, p.title, p.genre, p.poem, p.createdById, 
+            u.pseudonym, u.username 
+        FROM poems p
+        LEFT JOIN users u ON p.createdById = u.id
+    ";
+    
+    $stmt = $pdo->query($sql); 
+    $poems = []; 
+    
+    // 2. The fetched row now contains the user data as well
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+        $poems[] = [
+            'id'          => $row['id'],
+            'title'       => $row['title'],
+            'genre'       => $row['genre'],
+            'poem'        => $row['poem'],
+            'createdById' => $row['createdById'],
+            // Now you have direct access to the user's info!
+            'pseudonym'   => $row['pseudonym'],
+            'username'    => $row['username']
+        ];
+    }
+
+    include("view.php");
+
+
+
+
+
+        $stmt = $pdo->query("SELECT id, title, genre, poem, createdById FROM poems"); 
+    $poems = []; 
+    while ($poem = $stmt->fetch(PDO::FETCH_ASSOC)){
+        $poems[] = [
+            'id' => $poem['id'],
+            'title'=>$poem['title'],
+            'atype'=>$poem['atype'],
+            'published'=>$poem['published'],
+            'rating'=>$poem['rating'],
+            'createdById'=>$poem['createdById']
+        ];
+    }
+
+    $stmt = $pdo->query("SELECT pseudonym, username FROM users WHERE id=?"); 
+    $stmt->execute([$poem['createdById']]); 
+    $creator = $stmt->fetchColumn(); 
+
+    include("view.php");
+});
+```
+
+``` php
+<div class="aPodium" id="aPod">
+            <?php if (!empty($poems)): ?>
+                <?php foreach ($poems as $poem): ?>
+                    <div class="poem-card">
+                        <div class="pImg">
+                            <!-- Make sure pImg is included in your SELECT statement and $poems array! -->
+                            <img src="/posts/<?= $poem['pImg'] ?>" alt="pImg">
+                        </div>
+                        <h3><?= htmlspecialchars($poem['title']) ?></h3>
+                        
+                        <!-- NEW: Displaying the author's pseudonym (or username) -->
+                        <p><strong>By:</strong> <?= htmlspecialchars($poem['pseudonym']) ?> (@<?= htmlspecialchars($poem['username']) ?>)</p>
+                        
+                        <p>Type: <?= htmlspecialchars($poem['genre']) ?></p>
+                        <p>Poem: <?= nl2br(htmlspecialchars($poem['poem'])) ?></p> 
+                        <p>Published: <?= htmlspecialchars($poem['published']) ?></p> 
+                    </div>
+                <?php endforeach; ?>
+
+            <?php else: ?>
+                <p>No poems posted yet. Be the first!</p>
+            <?php endif; ?>
+        </div>
+```
