@@ -16,11 +16,33 @@
         <nav>
             <a href="">HOME</a>
             <a href="">POEMS</a>
-            <a href="">PROFILE</a>
+            <button>PROFILE</button>
         </nav>
     </header>
 
     <main>
+
+        <div class="registerFormDiv" id="registerFormDiv" class="hidden" >
+            <form action="" id="registerForm" > 
+                <input type="text" name="username" id="username" placeholder="username">
+                <input type="text" name="pseudonym" id="pseudonym" placeholder="pseudonym">
+                <input type="text" name="email" id="email" placeholder="email">
+                <input type="password" name="password" id="password" placeholder="password">
+                <button type="submit">REGISTER</button>
+            </form>
+            <p>Already have an account?</p>
+            <button>Click here</button>
+        </div>
+
+        <div class="loginFormDiv" class="hidden" id="loginFormDiv">
+            <form action="" id="loginForm" >
+                <input type="text" name="email" id="email" placeholder="email" >
+                <input type="text" name="password" id="password" placeholder="password">
+                <button type="submit">LOGIN</button>
+            </form>
+        </div>
+
+
         <h4>POST A POEM, PLING-EM ALL!</h4>
         <div class="createFormDiv" id="createFormDiv">
             <form action="" id="createForm">
@@ -31,7 +53,6 @@
                 <input type="file" name="pImg" id="pImg">
                 <button type="submit">CREATE</button>
             </form>
-
         </div>
 
         <div id="responseMessage" style="border:2px solid purple;">
@@ -43,7 +64,7 @@
                 <?php foreach ($poems as $poem): ?>
                     <div class="poem-card">
                         <div class="pImg">
-                            <img src="/posts/<?= $poem['pImg'] ?>" alt="pImg">
+                            <img src="<?= $poem['pImg'] ?>" alt="poem image">
                         </div>
                         <h3><?= htmlspecialchars($poem['title']) ?></h3>
                         <p>Genre:<?= htmlspecialchars($poem['genre']) ?></p>
@@ -51,7 +72,6 @@
                         <p>Published: <?= htmlspecialchars($poem['published']) ?> </p>
                         <p><?= htmlspecialchars($poem['pseudonym']) ?></p>
                         <p>(@<?= htmlspecialchars($poem['username']) ?>)</p> 
-
                     </div>
                 <?php endforeach; ?>
 
