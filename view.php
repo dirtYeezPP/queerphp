@@ -22,7 +22,7 @@
 
     <main>
 
-        <div class="registerFormDiv" id="registerFormDiv" class="hidden" >
+        <div class="registerFormDiv hidden" id="registerFormDiv">
             <form action="" id="registerForm" > 
                 <input type="text" name="username" id="username" placeholder="username">
                 <input type="text" name="pseudonym" id="pseudonym" placeholder="pseudonym">
@@ -34,7 +34,7 @@
             <button id="toggleLoginVisibility">Click here</button>
         </div>
 
-        <div class="loginFormDiv" class="hidden" id="loginFormDiv">
+        <div class="loginFormDiv hidden" id="loginFormDiv">
             <form action="" id="loginForm" >
                 <input type="text" name="email" id="email" placeholder="email" >
                 <input type="text" name="password" id="password" placeholder="password">

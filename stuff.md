@@ -1619,3 +1619,47 @@ App::post("/poems", function () use ($pdo) {
     exit;
 });
 ```
+
+
+
+``` css
+*{
+    margin: 0; 
+    box-sizing: border-box;
+}
+
+body{
+    background-color: var(--body-background);
+    color: var(--text-color);
+}
+
+:root{
+    --card-background: rgb(209, 201, 185);  
+    --text-color: rgb(61, 45, 11); 
+    --body-background: rgb(179, 167, 160); 
+}
+
+.poem-card{
+    background-color: var(--card-background);
+    max-width: fit-content;
+    padding:10px;
+    display: grid; 
+
+    /* width: 30%;  */
+}
+
+.hidden{
+    display:hidden; 
+}
+
+img{
+    width: 100%;
+    /* box-sizing: border-box; */
+    object-fit: cover;
+}
+
+.pImg{
+    width: 30%; 
+    aspect-ratio: 1/1;
+}
+```

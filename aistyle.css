@@ -1,0 +1,207 @@
+/* --- BASE RESET & TYPOGRAPHY --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f8f9fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* --- HEADER & NAVIGATION --- */
+header {
+    background-color: #6a0dad; /* Purple theme */
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+header nav {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+header nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.9rem;
+    transition: color 0.3s;
+}
+
+header nav a:hover {
+    color: #e0b0ff;
+}
+
+header nav button {
+    background-color: white;
+    color: #6a0dad;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+header nav button:hover {
+    background-color: #f0f0f0;
+}
+
+/* --- MAIN CONTAINER --- */
+main {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+main h4 {
+    text-align: center;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: #444;
+}
+
+/* --- FORMS --- */
+.registerFormDiv, .loginFormDiv, .createFormDiv {
+    background: white;
+    max-width: 400px;
+    margin: 0 auto 40px auto;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* Utility class to hide elements via jQuery toggle */
+.hidden {
+    display: none;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+input[type="text"], 
+input[type="password"], 
+input[type="file"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+input:focus {
+    outline: none;
+    border-color: #6a0dad;
+    box-shadow: 0 0 5px rgba(106, 13, 173, 0.2);
+}
+
+form button {
+    background-color: #6a0dad;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+form button:hover {
+    background-color: #5c0b99;
+}
+
+/* Toggle link under the register form */
+.registerFormDiv p {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 0.9rem;
+}
+
+#toggleLoginVisibility {
+    background: none;
+    color: #6a0dad;
+    border: none;
+    font-weight: bold;
+    width: 100%;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+/* --- RESPONSE MESSAGE --- */
+#responseMessage {
+    max-width: 400px;
+    margin: 0 auto 30px auto;
+    padding: 10px;
+    text-align: center;
+    border-radius: 6px;
+    background-color: #fff;
+}
+
+/* --- POEM GRID (PODIUM) --- */
+.podium {
+    display: grid;
+    /* Automatically creates responsive columns that don't shrink below 280px */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.poem-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.poem-card:hover {
+    transform: translateY(-5px);
+}
+
+.pImg img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover; /* Prevents image stretching */
+    border-bottom: 3px solid #6a0dad;
+}
+
+.poem-card h3 {
+    margin: 15px 15px 5px 15px;
+    font-size: 1.2rem;
+    color: #222;
+}
+
+.poem-card p {
+    margin: 0 15px 10px 15px;
+    font-size: 0.95rem;
+    color: #555;
+}
+
+.poem-card p:nth-of-type(2) {
+    flex-grow: 1; /* Pushes the author/date info to the bottom */
+    font-style: italic;
+    color: #333;
+}
+
+
+
+
+
+
+
+
