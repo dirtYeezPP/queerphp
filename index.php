@@ -12,11 +12,11 @@ App::get("/", function () {
 App::get("/poems", function () use($pdo) {
 
     $sql = "
-    SELECT 
-        p.id, p.title, p.genre, p.poem, p.createdById,
-        u.pseudonym, u.username
-    FROM poems p 
-    LEFT JOIN users u ON p.createdById = u.id
+        SELECT 
+            p.id, p.title, p.genre, p.poem, p.pImg, p.published, p.createdById,
+            u.pseudonym, u.username
+        FROM poems p 
+        LEFT JOIN users u ON p.createdById = u.userId
     "; 
 
     $stmt = $pdo->query($sql);
@@ -41,14 +41,14 @@ App::post("/poems", function () use ($pdo) {
     header('Content-Type: application/json');
     $newPoem = json_decode(file_get_contents('php://input'), true);
 
-    if(!isset($_FILES['img']) || $_FILES['img']['error'] != UPLOAD_ERR_OK){
+    if(!isset($_FILES['pImg']) || $_FILES['pImg']['error'] != UPLOAD_ERR_OK){
         echo json_encode(['status'=>'error', 'message'=>'youre gay']); 
     }
 
     $req = [
         "title" => $newPoem['title'] ?? '',
         "genre" => $newPoem['genre'] ?? '',
-        "poem" => (int) $newPoem['poem'],
+        "poem" => $newPoem['poem'] ?? '',
         "pImg"=>PATHS::RESOURCES_PATH.$newPoem["pImg"],
         "published" => date("Y-m-d H:i:s"),
         "createdById" => (int) 1
@@ -60,7 +60,7 @@ App::post("/poems", function () use ($pdo) {
     } 
 
     try{
-        $sql = "INSERT INTO animes (title, genre, poem, pImg, published, createdById) VALUES (:title, :genre, :poem, :pImg, :published, :createdById);";
+        $sql = "INSERT INTO poems (title, genre, poem, pImg, published, createdById) VALUES (:title, :genre, :poem, :pImg, :published, :createdById);";
         $pdo->prepare($sql)->execute($req);
 
         http_response_code(200);

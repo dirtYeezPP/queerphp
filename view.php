@@ -56,7 +56,7 @@
                 <?php endforeach; ?>
 
             <?php else: ?>
-                <p>Add an anime youve watched.</p>
+                <p>Post a poem of yours!</p>
             <?php endif; ?>
         </div>
 
