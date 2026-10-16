@@ -1392,7 +1392,12 @@ body {
 
 .hidden {
     display: none !important; 
-}
+}'
+
+#F7FCFE
+
+#E9DFBE
+#E8D5BE
 
 header {
     background-color: var(--body-background);
