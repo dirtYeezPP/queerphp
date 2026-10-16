@@ -99,9 +99,13 @@ App::post("/poems", function () use ($pdo, $userId) {
     exit;
 });
 
-App::delete("/poems", function () {});
+App::delete("/poems", function () {
 
-App::patch("/poems", function () {});
+});
+
+App::patch("/poems", function () {
+    
+});
 
 // Auth 
 

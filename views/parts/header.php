@@ -13,6 +13,7 @@
         <nav>
             <a href="/">HOME</a>
             <a href="/poems">POEMS</a>
+            <a href="/logout">LOG OUT</a>
             <button id="authVisibility">PROFILE</button>
         </nav>
     </header>
