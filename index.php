@@ -12,7 +12,7 @@ $username = $isLoggedIn ? $_SESSION['name'] : null;
 $userId = $isLoggedIn ? $_SESSION['id'] : null;
 
 App::get("/", function () {
-    include('view.php');
+    include('views/home.php');
 });
 
 App::get("/poems", function () use ($pdo) {
@@ -41,7 +41,7 @@ App::get("/poems", function () use ($pdo) {
         ];
     }
 
-    include("view.php");
+    include("views/poems.php");
 });
 
 App::post("/poems", function () use ($pdo, $userId) {

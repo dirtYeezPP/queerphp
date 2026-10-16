@@ -1,5 +1,12 @@
+:root {
+    --card-background: rgb(209, 201, 185);  
+    --text-color: rgb(61, 45, 11); 
+    --body-background: rgb(179, 167, 160); 
+}
+
 *{
     margin: 0; 
+    padding: 0; 
     box-sizing: border-box;
 }
 
@@ -8,37 +15,89 @@ body{
     color: var(--text-color);
 }
 
-:root{
-    --card-background: rgb(209, 201, 185);  
-    --text-color: rgb(61, 45, 11); 
-    --body-background: rgb(179, 167, 160); 
-}
-
-/* .poem-card{
-    background-color: var(--card-background);
-    max-width: fit-content;
-    padding:10px;
-    display: grid; 
-
-    width: 30%;  
-} 
-*/
-
 .hidden{
-    display:hidden; 
+    display:none; 
 }
 
-/* img{
-    width: 100%;
-    box-sizing: border-box; 
-    object-fit: cover;
+header{
+    background-color: var(--body-background);
+    border-bottom: 3x solid var(--text-color);
+    text-align: center; 
+    padding: 15px 20px; 
 }
 
-.pImg{
-    width: 30%; 
-    aspect-ratio: 1/1;
-} */
+nav{
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px; 
+    margin-top: 10px; 
+}
 
+nav a{
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: bold; 
+}
+
+nav button{
+    background-color: var(--card-background);
+    border: none; 
+    color: var(--text-color);
+    padding: 10px; 
+    border-radius: 6px; 
+    font-weight: bold; 
+    cursor: pointer; 
+}
+
+main{
+    padding: 20px; 
+    max-width: 400px;
+    margin: 0 auto; 
+}
+
+#registerFormDiv, #loginFormDiv{
+    display: flex; 
+    flex-direction: column;
+    gap: 15px;
+    background-color: var(--card-background);
+    padding: 25px; 
+    box-shadow: 0 4px 10px var(--text-color);
+    margin-bottom: 20px; 
+}   
+
+#registerFormDiv, #loginFormDiv, #createFormDiv{
+    /* background-color: var(--body-background); */
+    width: 100%; 
+    max-width: 400px;
+    margin: 0 auto 40px auto;
+    padding: 30px; 
+    border-radius: 10px; 
+    box-shadow: 0 4px 10px var(--card-background); 
+}
+
+input{
+    width: 100%; 
+    padding: 12px; 
+    border: 1px solid #ccc; 
+    border-radius: 6px;
+    font-size: 16px; 
+}
+input:focus{
+    outline:none;
+    border-color: var(--text-color); 
+}
+
+button[type="submit"]{
+    width: 100%; 
+    padding: 12px; 
+    background-color: var(--card-background);
+    color: var(--text-color);
+    border: none; 
+    border-radius: 6px; 
+    font-size: 16px; 
+    font-weight: bold; 
+    cursor: pointer; 
+}
 
 .podium {
     display: grid;
@@ -85,4 +144,21 @@ body{
     flex-grow: 1; /* Pushes the author/date info to the bottom */
     font-style: italic;
     color: #333;
+}
+
+
+footer{
+    text-align: center;
+    padding: 20px; 
+    font-size: 0.9rem;
+    color: #777;  
+}
+
+
+@media (min-width: 600px) {
+    nav {
+        flex-direction: row;
+        justify-content: center;
+        gap: 30px;
+    }
 }

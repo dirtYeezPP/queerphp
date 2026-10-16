@@ -1663,3 +1663,32 @@ img{
     aspect-ratio: 1/1;
 }
 ```
+
+
+``` php 
+<!-- views/poems.php -->
+<?php include('partials/header.php'); ?>
+
+<main>
+    <h4>POST A POEM, PLING-EM ALL!</h4>
+    <!-- Your form and podium code here -->
+</main>
+
+<?php include('partials/footer.php'); ?>
+```
+
+``` php
+App::get("/", function () {
+    include('views/home.php');
+});
+
+App::get("/poems", function () use ($pdo) {
+    // ... all your SQL logic to fetch $poems ...
+    include('views/poems.php');
+});
+
+App::get("/profile", function () use ($pdo) {
+    // ... logic to fetch user profile data ...
+    include('views/profile.php');
+});
+``` 
