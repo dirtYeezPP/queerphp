@@ -99,8 +99,14 @@ App::post("/poems", function () use ($pdo, $userId) {
     exit;
 });
 
-App::delete("/poems", function () {
+App::delete("/poems", function () use ($pdo) {
+    parse_str(file_get_contents('php://input'), $_DELETE);
+    $poemId = $_DELETE['id']; 
+    $stmt = $pdo->query("SELECT img FROM poems WHERE id=:id");
+    $img = $stmt->fetchColumn(); 
 
+    unlink(__DIR__."/".$img); 
+    $pdo->prepare("DELETE FROM poems WHERE id=?")->execute([$poemId]);
 });
 
 App::patch("/poems", function () {
@@ -109,7 +115,9 @@ App::patch("/poems", function () {
 
 // Auth 
 
-App::get("/auth", function () {});
+App::get("/auth", function () {
+
+});
 
 App::post("/auth/register", function () use ($pdo) {
     header('Content-Type: application/json');
