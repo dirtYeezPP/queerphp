@@ -1535,3 +1535,194 @@ footer {
 }
 ```
 
+
+
+``` php
+<div class="menu-container">
+  <details class="dropdown">
+    <summary class="dots-btn" aria-label="Post actions">⋮</summary>
+    <div class="poemButtonsDiv">
+      <button type="button">Edit Post</button>
+      <button type="button">Delete Post</button>
+    </div>
+  </details>
+</div>
+```
+
+``` css
+.menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* Remove default disclosure triangle */
+.dropdown summary {
+  list-style: none;
+  cursor: pointer;
+  font-size: 1.25rem;
+  padding: 4px 8px;
+  user-select: none;
+}
+
+.dropdown summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Position the popup menu */
+.poemButtonsDiv {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 4px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  min-width: 130px;
+  z-index: 10;
+  overflow: hidden;
+}
+
+.poemButtonsDiv button {
+  background: none;
+  border: none;
+  padding: 10px 14px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.poemButtonsDiv button:hover {
+  background-color: #f1f5f9;
+}
+```
+
+``` php
+<div class="menu-container">
+  <button type="button" class="dots-btn" aria-label="Post actions">⋮</button>
+  <div class="poemButtonsDiv hidden">
+    <button type="button">Edit Post</button>
+    <button type="button">Delete Post</button>
+  </div>
+</div>
+```
+
+``` css
+.menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.dots-btn {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.dots-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.poemButtonsDiv {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 4px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  min-width: 130px;
+  z-index: 10;
+  overflow: hidden;
+}
+
+/* Utility to hide the dropdown */
+.hidden {
+  display: none !important;
+}
+
+.poemButtonsDiv button {
+  background: none;
+  border: none;
+  padding: 10px 14px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.poemButtonsDiv button:hover {
+  background-color: #f1f5f9;
+}
+```
+
+``` js
+// Toggle menu on dot button click
+document.addEventListener('click', (e) => {
+  const isDotsBtn = e.target.matches('.dots-btn');
+  
+  // Close any other open menus first
+  document.querySelectorAll('.poemButtonsDiv').forEach(menu => {
+    if (!isDotsBtn || menu !== e.target.nextElementSibling) {
+      menu.classList.add('hidden');
+    }
+  });
+
+  // Toggle current menu if dot button was clicked
+  if (isDotsBtn) {
+    const menu = e.target.nextElementSibling;
+    menu.classList.toggle('hidden');
+  }
+});
+
+
+
+$(document).on('click', function(e) {
+  const $clickedBtn = $(e.target).closest('.dots-btn');
+
+  if ($clickedBtn.length) {
+    // Find the menu next to the clicked button
+    const $currentMenu = $clickedBtn.next('.poemButtonsDiv');
+    
+    // Hide all other open menus on the page
+    $('.poemButtonsDiv').not($currentMenu).addClass('hidden');
+    
+    // Toggle the clicked menu
+    $currentMenu.toggleClass('hidden');
+  } else {
+    // If the user clicks anywhere else on the document, close all menus
+    $('.poemButtonsDiv').addClass('hidden');
+  }
+});
+
+
+$(document).ready(function() {
+    $(document).on('click', '.deletePostBtn', function(e) {
+        e.preventDefault(); // Good practice to prevent default button behavior
+        
+        // Grab the ID from the data-id attribute of the clicked button
+        const poemId = $(this).data('id');
+        
+        console.log("The ID for this poem is:", poemId);
+        
+        // Now you can do your AJAX call and send poemId to the server
+        /*
+        $.ajax({
+            url: 'delete_poem.php',
+            method: 'POST',
+            data: { id: poemId },
+            success: function(response) {
+                // handle success
+            }
+        });
+        */
+    });
+});
+```

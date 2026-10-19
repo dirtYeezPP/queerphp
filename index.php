@@ -115,8 +115,23 @@ App::patch("/poems", function () {
 
 // Auth 
 
-App::get("/auth", function () {
+App::get("/me", function () use($pdo, $userId) {
+    $stmt = $pdo->prepare("SELECT * FROM poems WHERE createdById = :createdById"); 
+    $stmt->execute(['createdById'=>$userId]); 
 
+    $userPoems = []; 
+    while($poem = $stmt->fetch(PDO::FETCH_ASSOC)){
+        $userPoems[] = [
+            'id' => $poem['id'],
+            'title'=>$poem['title'],
+            'genre' => $poem['genre'],
+            'poem'=>$poem['poem'], 
+            'pImg'=>'posts/'.$poem['pImg'],
+            'published'=>$poem['published']
+        ];
+    }
+
+    include("views/profile.php");
 });
 
 App::post("/auth/register", function () use ($pdo) {

@@ -1691,4 +1691,26 @@ App::get("/profile", function () use ($pdo) {
     // ... logic to fetch user profile data ...
     include('views/profile.php');
 });
+
+
+
+const formData = new FormData();
+formData.append('id', poemId);
+
+$.ajax({
+    url: 'delete.php',
+    method: 'POST',
+    data: formData,
+    processData: false, // Extra setting required
+    contentType: false, // Extra setting required
+    success: function(response) { ... }
+});
+
+
+$.ajax({
+    url: 'delete.php',
+    method: 'POST',
+    data: { id: poemId }, // Much easier to read!
+    success: function(response) { ... }
+});
 ``` 
