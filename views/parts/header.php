@@ -15,8 +15,12 @@
         <nav>
             <a href="/">HOME</a>
             <a href="/poems">POEMS</a>
-            <a href="/logout">LOG OUT</a>
-            <button id="authVisibility">PROFILE</button>
+            <?php if(isset($userId)): ?>
+                <a href="/logout">LOG OUT</a>
+                <a href="/me">PROFILE</a>
+            <?php else: ?>
+                <button id="authVisibility">AUTHBTN</button>
+            <?php endif; ?>
             
             <div class="userGreetingDiv">
                 <?php if (isset($userId)): ?>

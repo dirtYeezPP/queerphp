@@ -1,9 +1,34 @@
+// HELPER FUNCTIONS
+function handleAjaxSuccess(response, formSelector = null){
+    if(response.text === 'success'){
+        $('#responseMessage').css('color', 'purple').text(response.message); 
+        if(formSelector && $(formSelector).length){
+            $(formSelector)[0].reset(); 
+        }
+    } else {
+        $('#responseMessage').css('color', 'red').text(response.message); 
+    }
+}
+
+function handleAjaxError(xhr){
+    let errorMessage = 'Server Communication Fail'; 
+    if(xhr.responseText){
+        try{
+            const errData = JSON.parse(xhr.responseText); 
+            errorMessage = errData.message || errorMessage; 
+        } catch(e){
+            console.error('Couldnt parse response'); 
+        }
+    }
+    $('#responseMessage').css('color', 'red').text(errorMessage); 
+}
+
+
+// ROUTE RELATED FUNCTIONS 
 $(document).ready(function () {
     $("#createForm").on('submit', function (e) {
         e.preventDefault();
-
         const formData = new FormData(this);
-
         $.ajax({
             url: '/poems',
             type: 'POST',
@@ -12,34 +37,12 @@ $(document).ready(function () {
             data: formData,
 
             success: function (response) {
-                if (response.status === 'success') {
-                    $('#responseMessage').css('color', 'purple').text(response.message);
-                    $('#createForm')[0].reset();
-                } else {
-                    $('#responseMessage').css('color', 'red').text(response.message);
-                }
+                handleAjaxSuccess(response, '#createForm'); 
             },
-            error: function (xhr) {
-                let errorMessage = 'Server communication fail';
-                if (xhr.responseText) {
-                    try {
-                        const errData = JSON.parse(xhr.responseText);
-                        errorMessage = errData.message;
-                    } catch (e) {
-                        console.error('Couldnt parse response');
-                    }
-                }
-
-                $('#responseMessage').css('color', 'red').text(errorMessage)
-
-                // console.error(xhr.responseText); 
-                // $('#responseMessage').css('color', 'red').text('Server Communication fail.');
-            }
-        });
-    });
+            error: handleAjaxError
+        }); 
+    }); 
 });
-
-
 
 $(document).ready(function () {
     $('#registerForm').on('submit', function (e) {
@@ -60,26 +63,9 @@ $(document).ready(function () {
             dataType: "json",
 
             success: function (response) {
-                if (response.status === 'success') {
-                    $('#responseMessage').css('color', 'purple').text(response.message);
-                    $('#createForm')[0].reset();
-                } else {
-                    $('#responseMessage').css('color', 'red').text(response.message);
-                }
+                handleAjaxSuccess(response, '#registerForm'); 
             },
-            error: function (xhr) {
-                let errorMessage = 'Server communication fail';
-                if (xhr.responseText) {
-                    try {
-                        const errData = JSON.parse(xhr.responseText);
-                        errorMessage = errData.message;
-                    } catch (e) {
-                        console.error('Couldnt parse response');
-                    }
-                }
-
-                $('#responseMessage').css('color', 'red').text(errorMessage)
-            }
+            error: handleAjaxError
         })
     })
 });
@@ -101,44 +87,68 @@ $(document).ready(function () {
             dataType: "json",
 
             success: function (response) {
-                if (response.status === 'success') {
-                    $('#responseMessage').css('color', 'purple').text(response.message);
-                    $('#createForm')[0].reset();
-                } else {
-                    $('#responseMessage').css('color', 'red').text(response.message);
-                }
+                handleAjaxSuccess(response, '#loginForm');
             },
-            error: function (xhr) {
-                let errorMessage = 'Server communication fail';
-                if (xhr.responseText) {
-                    try {
-                        const errData = JSON.parse(xhr.responseText);
-                        errorMessage = errData.message;
-                    } catch (e) {
-                        console.error('Couldnt parse response');
-                    }
-                }
+            error: handleAjaxError
+        });
+    });
+});
 
-                $('#responseMessage').css('color', 'red').text(errorMessage)
-            }
-        })
-    })
-})
+$(document).ready(function () {
+    $($document).on('click', '.deletePostBtn', function (e) {
+        e.preventDefault();
+        const poemId = $this('id').data('id');
+        console.log("Id for poem:", poemId);
+    });
+
+    $.ajax({
+        url: '/poems',
+        type: 'DELETE',
+        contentType: "application/json",
+        data: { id: poemId },
+        dataType: "json",
+
+        success: function (response) {
+            handleAjaxSuccess(response);
+        },
+        error: handleAjaxError
+    });
+});
+
+$(document).ready(function () {
+    $('#editForm').on('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        $.ajax({
+            url: 'poems',
+            type: 'PATCH',
+            contentType: false,
+            processData: false,
+            data: formData,
+            success: function (response) {
+                handleAjaxSuccess(response, '#editForm'); 
+            },
+            error: handleAjaxError
+        });
+    });
+});
 
 
+// 'CLICK' RELATED FUNCTIONS 
 $(document).ready(function () {
     $('#authVisibility').on('click', function (e) {
         e.preventDefault(); // Prevents the page from jumping if it's an <a> link or submitting if it's a button
 
-        // This will instantly flip the visibility of both forms
+        // flip invisiviliy 
         $('#registerForm').toggle();
     });
 });
+
 $(document).ready(function () {
     $('#toggleLoginVisibility').on('click', function (e) {
-        e.preventDefault(); // Prevents the page from jumping if it's an <a> link or submitting if it's a button
+        e.preventDefault(); 
 
-        // This will instantly flip the visibility of both forms
         $('#loginForm').toggle();
     });
 });
@@ -153,42 +163,4 @@ $(document).on('click', function (e) {
         // if clicked anywhere else close all menus 
         $('.poemButtonsDiv').addClass('hidden');
     }
-});
-
-$(document).ready(function () {
-    $($document).on('click', '.deletePostBtn', function (e) {
-        e.preventDefault();
-        const poemId = $this('id').data('id');
-        console.log("Id for poem:", poemId);
-    });
-
-    $.ajax({
-        url: '/poems',
-        type: 'DELETE',
-        contentType: "application/json",
-        data: {id: poemId}, 
-        dataType: "json",
-
-        success: function (response) {
-            if (response.status === 'success') {
-                $('#responseMessage').css('color', 'purple').text(response.message);
-                $('#createForm')[0].reset();
-            } else {
-                $('#responseMessage').css('color', 'red').text(response.message);
-            }
-        },
-        error: function (xhr) {
-            let errorMessage = 'Server communication fail';
-            if (xhr.responseText) {
-                try {
-                    const errData = JSON.parse(xhr.responseText);
-                    errorMessage = errData.message;
-                } catch (e) {
-                    console.error('Couldnt parse response');
-                }
-            }
-
-            $('#responseMessage').css('color', 'red').text(errorMessage)
-        }
-    })
 });

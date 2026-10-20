@@ -1714,3 +1714,425 @@ $.ajax({
     success: function(response) { ... }
 });
 ``` 
+
+
+``` js
+$(document).ready(function () {
+    $($document).on('click', '.deletePostBtn', function (e) {
+        e.preventDefault();
+        const poemId = $this('id').data('id');
+        console.log("Id for poem:", poemId);
+    });
+
+    $.ajax({
+        url: '/poems',
+        type: 'DELETE',
+        contentType: "application/json",
+        data: {id: poemId}, 
+        dataType: "json",
+
+        success: function (response) {
+            if (response.status === 'success') {
+                $('#responseMessage').css('color', 'purple').text(response.message);
+                $('#createForm')[0].reset();
+            } else {
+                $('#responseMessage').css('color', 'red').text(response.message);
+            }
+        },
+        error: function (xhr) {
+            let errorMessage = 'Server communication fail';
+            if (xhr.responseText) {
+                try {
+                    const errData = JSON.parse(xhr.responseText);
+                    errorMessage = errData.message;
+                } catch (e) {
+                    console.error('Couldnt parse response');
+                }
+            }
+
+            $('#responseMessage').css('color', 'red').text(errorMessage)
+        }
+    })
+});
+```
+
+``` js 
+$(document).ready(function () {
+    $("#createForm").on('submit', function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+
+        $.ajax({
+            url: '/poems',
+            type: 'POST',
+            contentType: false,
+            processData: false,
+            data: formData,
+
+            success: function (response) {
+                if (response.status === 'success') {
+                    $('#responseMessage').css('color', 'purple').text(response.message);
+                    $('#createForm')[0].reset();
+                } else {
+                    $('#responseMessage').css('color', 'red').text(response.message);
+                }
+            },
+            error: function (xhr) {
+                let errorMessage = 'Server communication fail';
+                if (xhr.responseText) {
+                    try {
+                        const errData = JSON.parse(xhr.responseText);
+                        errorMessage = errData.message;
+                    } catch (e) {
+                        console.error('Couldnt parse response');
+                    }
+                }
+
+                $('#responseMessage').css('color', 'red').text(errorMessage)
+
+                // console.error(xhr.responseText); 
+                // $('#responseMessage').css('color', 'red').text('Server Communication fail.');
+            }
+        });
+    });
+});
+```
+
+
+``` js
+$(document).ready(function () {
+    $("#createForm").on('submit', function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+
+        $.ajax({
+            url: '/poems',
+            type: 'POST',
+            contentType: false,
+            processData: false,
+            data: formData,
+
+            success: function (response) {
+                if (response.status === 'success') {
+                    $('#responseMessage').css('color', 'purple').text(response.message);
+                    $('#createForm')[0].reset();
+                } else {
+                    $('#responseMessage').css('color', 'red').text(response.message);
+                }
+            },
+            error: function (xhr) {
+                let errorMessage = 'Server communication fail';
+                if (xhr.responseText) {
+                    try {
+                        const errData = JSON.parse(xhr.responseText);
+                        errorMessage = errData.message;
+                    } catch (e) {
+                        console.error('Couldnt parse response');
+                    }
+                }
+
+                $('#responseMessage').css('color', 'red').text(errorMessage)
+
+                // console.error(xhr.responseText); 
+                // $('#responseMessage').css('color', 'red').text('Server Communication fail.');
+            }
+        });
+    });
+});
+
+
+
+$(document).ready(function () {
+    $('#registerForm').on('submit', function (e) {
+        e.preventDefault();
+
+        const formData = {
+            username: $("#username").val(),
+            pseudonym: $("#pseudonym").val(),
+            email: $("#email").val(),
+            password: $("#password").val()
+        }
+
+        $.ajax({
+            url: '/auth/register',
+            type: 'POST',
+            contentType: "application/json",
+            data: JSON.stringify(formData),
+            dataType: "json",
+
+            success: function (response) {
+                if (response.status === 'success') {
+                    $('#responseMessage').css('color', 'purple').text(response.message);
+                    $('#createForm')[0].reset();
+                } else {
+                    $('#responseMessage').css('color', 'red').text(response.message);
+                }
+            },
+            error: function (xhr) {
+                let errorMessage = 'Server communication fail';
+                if (xhr.responseText) {
+                    try {
+                        const errData = JSON.parse(xhr.responseText);
+                        errorMessage = errData.message;
+                    } catch (e) {
+                        console.error('Couldnt parse response');
+                    }
+                }
+
+                $('#responseMessage').css('color', 'red').text(errorMessage)
+            }
+        })
+    })
+});
+
+$(document).ready(function () {
+    $('#loginForm').on('submit', function (e) {
+        e.preventDefault();
+
+        const formData = {
+            email: $("#logEmail").val(),
+            password: $("#logPassword").val()
+        }
+
+        $.ajax({
+            url: '/auth/login',
+            type: 'POST',
+            contentType: "application/json",
+            data: JSON.stringify(formData),
+            dataType: "json",
+
+            success: function (response) {
+                if (response.status === 'success') {
+                    $('#responseMessage').css('color', 'purple').text(response.message);
+                    $('#createForm')[0].reset();
+                } else {
+                    $('#responseMessage').css('color', 'red').text(response.message);
+                }
+            },
+            error: function (xhr) {
+                let errorMessage = 'Server communication fail';
+                if (xhr.responseText) {
+                    try {
+                        const errData = JSON.parse(xhr.responseText);
+                        errorMessage = errData.message;
+                    } catch (e) {
+                        console.error('Couldnt parse response');
+                    }
+                }
+
+                $('#responseMessage').css('color', 'red').text(errorMessage)
+            }
+        })
+    })
+})
+
+
+$(document).ready(function () {
+    $('#authVisibility').on('click', function (e) {
+        e.preventDefault(); // Prevents the page from jumping if it's an <a> link or submitting if it's a button
+
+        // This will instantly flip the visibility of both forms
+        $('#registerForm').toggle();
+    });
+});
+$(document).ready(function () {
+    $('#toggleLoginVisibility').on('click', function (e) {
+        e.preventDefault(); // Prevents the page from jumping if it's an <a> link or submitting if it's a button
+
+        // This will instantly flip the visibility of both forms
+        $('#loginForm').toggle();
+    });
+});
+
+$(document).on('click', function (e) {
+    const $clickedBtn = $(e.target).closest('.dotsBtn');
+    if ($clickedBtn.length) {
+        const $currentMenu = $clickedBtn.next('.poemButtonsDiv');
+        $('.poemButtonsDiv').not($currentMenu).addClass('hidden');
+        $currentMenu.toggleClass('hidden');
+    } else {
+        // if clicked anywhere else close all menus 
+        $('.poemButtonsDiv').addClass('hidden');
+    }
+});
+
+$(document).ready(function () {
+    $($document).on('click', '.deletePostBtn', function (e) {
+        e.preventDefault();
+        const poemId = $this('id').data('id');
+        console.log("Id for poem:", poemId);
+    });
+
+    $.ajax({
+        url: '/poems',
+        type: 'DELETE',
+        contentType: "application/json",
+        data: { id: poemId },
+        dataType: "json",
+
+        success: function (response) {
+            if (response.status === 'success') {
+                $('#responseMessage').css('color', 'purple').text(response.message);
+                $('#createForm')[0].reset();
+            } else {
+                $('#responseMessage').css('color', 'red').text(response.message);
+            }
+        },
+        error: function (xhr) {
+            let errorMessage = 'Server communication fail';
+            if (xhr.responseText) {
+                try {
+                    const errData = JSON.parse(xhr.responseText);
+                    errorMessage = errData.message;
+                } catch (e) {
+                    console.error('Couldnt parse response');
+                }
+            }
+
+            $('#responseMessage').css('color', 'red').text(errorMessage)
+        }
+    })
+});
+
+
+$(document).ready(function () {
+    $('#editForm').on('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        $.ajax({
+            url: 'poems',
+            type: 'PATCH',
+            contentType: false,
+            processData: false,
+            data: formData,
+            success: function (response) {
+                if (response.status === 'success') {
+                    $('#responseMessage').css('color', 'purple').text(response.message);
+                    $('#createForm')[0].reset();
+                } else {
+                    $('#responseMessage').css('color', 'red').text(response.message);
+                }
+            },
+            error: function (xhr) {
+                let errorMessage = 'Server communication fail';
+                if (xhr.responseText) {
+                    try {
+                        const errData = JSON.parse(xhr.responseText);
+                        errorMessage = errData.message;
+                    } catch (e) {
+                        console.error('Couldnt parse response');
+                    }
+                }
+
+                $('#responseMessage').css('color', 'red').text(errorMessage)
+
+                // console.error(xhr.responseText); 
+                // $('#responseMessage').css('color', 'red').text('Server Communication fail.');
+            }
+        })
+    })
+}) 
+```
+
+
+
+``` js 
+// Define these globally or in a shared script file
+function handleAjaxSuccess(response, formSelector = '#createForm') {
+    if (response.status === 'success') {
+        $('#responseMessage').css('color', 'purple').text(response.message);
+        
+        // Only attempt to reset if a form selector was provided and exists
+        if (formSelector && $(formSelector).length) {
+            $(formSelector)[0].reset();
+        }
+    } else {
+        $('#responseMessage').css('color', 'red').text(response.message);
+    }
+}
+
+function handleAjaxError(xhr) {
+    let errorMessage = 'Server communication fail';
+    
+    if (xhr.responseText) {
+        try {
+            const errData = JSON.parse(xhr.responseText);
+            // Use the parsed message, or keep the default if it's undefined
+            errorMessage = errData.message || errorMessage; 
+        } catch (e) {
+            console.error('Couldnt parse response');
+        }
+    }
+
+    $('#responseMessage').css('color', 'red').text(errorMessage);
+}
+```
+
+``` js 
+$.ajax({
+    url: 'your_api_endpoint.php',
+    type: 'POST',
+    data: formData,
+    // Use an anonymous function if you need to pass a specific form ID
+    success: function(response) {
+        handleAjaxSuccess(response, '#createForm'); 
+    },
+    // Pass the function reference directly for errors
+    error: handleAjaxError 
+});
+``` 
+
+``` js 
+$.ajax({
+    url: 'delete_endpoint.php',
+    type: 'POST',
+    data: { id: 123 },
+    success: function(response) {
+        // Pass null so no form gets reset
+        handleAjaxSuccess(response, null); 
+        
+        // You usually want to remove the deleted item from the screen too
+        if (response.status === 'success') {
+            $('#item-123').remove(); 
+        }
+    },
+    error: handleAjaxError
+});
+
+// Change the default from '#createForm' to null
+function handleAjaxSuccess(response, formSelector = null) {
+    if (response.status === 'success') {
+        $('#responseMessage').css('color', 'purple').text(response.message);
+        
+        if (formSelector && $(formSelector).length) {
+            $(formSelector)[0].reset();
+        }
+    } else {
+        $('#responseMessage').css('color', 'red').text(response.message);
+    }
+}
+```
+
+
+``` js 
+$(document).ready(function () {
+    $('#authVisibility').on('click', function (e) {
+        e.preventDefault(); // Prevents the page from jumping if it's an <a> link or submitting if it's a button
+
+        // flip invisiviliy 
+        $('#registerForm').toggle();
+    });
+});
+
+$(document).ready(function () {
+    $('#toggleLoginVisibility').on('click', function (e) {
+        e.preventDefault(); // Prevents the page from jumping if it's an <a> link or submitting if it's a button
+
+        $('#loginForm').toggle();
+    });
+});
+```
+they dont work quite the way i want them to.... 
