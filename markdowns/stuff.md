@@ -2136,3 +2136,140 @@ $(document).ready(function () {
 });
 ```
 they dont work quite the way i want them to.... 
+
+
+``` pug 
+extends ./layout.pug
+
+block content
+    if $catPost
+        .card(id="catCard-{$catPost['id']}")
+            h4= $catPost['name']
+            h5 Breed: #{$catPost['breed']}
+            |
+            .imgBox(style="height:20vw;width:auto;aspect-ratio:1/1;")
+                img(src=$pathPrefix.$catPost['img'] style="width:100%;height:100%;object-fit:cover;")
+            |
+            if $userId === $catPost['postedById']
+                button(onclick="deleteCar({$catPost['id']})") DELETE
+
+
+                h3 Manage Catto information
+                h4 Did you throw the glass off the counter? we've got your back.
+                input(type="hidden" id="id" value=$catPost['id'])
+                |
+                div.editSection(style="margin-bottom:20px;")
+                    h4 Edit details yes
+                    |
+                    .reg-group
+                        label(for="name") Change name?
+                        input(type="text" id="name" value=$catPost['name'])
+                    .reg-group
+                        label(for="breed") Change breed?
+                        input(type="text" id="breed" value=$catPost['breed'])
+                    |
+                    button(type="button" onclick="updateCarInfo()") Save Details
+                |
+                div.editSection
+                    h4 change the picture?
+                    |
+                    div
+                        label(for="img") Change image? or keep this one?
+                        input(type="file" id="img" accept="image/*")
+                    |
+                    button(onclick="updateCarImage()" type="button") Save changes!
+```
+
+
+``` php
+App::post("/poems/update", function () use ($pdo, $userId) {
+    // 1. Get the ID
+    $id = $_POST['id'] ?? null;
+    
+    if (!$id) {
+        Errors::sendJsonFormatErr('ERR_MISSING_DATA');
+        exit;
+    }
+
+    // 2. Gather text fields that were sent
+    $req = [
+        'title' => $_POST['title'] ?? null,
+        'genre' => $_POST['genre'] ?? null,
+        'poem' => $_POST['poem'] ?? null
+    ];
+
+    // Filter out empty values so we only update what the user actually changed
+    $sqlParamValues = array_filter($req, function ($value) {
+        return !empty($value);
+    });
+
+    // 3. Handle the Image Upload (if a new file was provided)
+    $pImgFile = $_FILES['pImg'] ?? null;
+    
+    if ($pImgFile && $pImgFile['error'] === UPLOAD_ERR_OK) {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $pImgFile['tmp_name']);
+        finfo_close($finfo);
+
+        $allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        $ext = strtolower(pathinfo($pImgFile['name'], PATHINFO_EXTENSION));
+
+        if (!in_array($mimeType, $allowedMimes) || !in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'webp'])) {
+            Errors::sendJsonFormatErr('ERR_INVALID_DATA');
+            exit;
+        }
+
+        // Fetch old image to delete it later
+        $stmt = $pdo->prepare("SELECT pImg FROM poems WHERE id = ? AND createdById = ?");
+        $stmt->execute([$id, $userId]);
+        $oldImg = $stmt->fetchColumn();
+
+        // Move new file
+        $newImgPath = "posts/" . uniqid('poem_') . "." . $ext;
+        if (move_uploaded_file($pImgFile['tmp_name'], __DIR__ . "/" . $newImgPath)) {
+            
+            // Add the new image path to the data we are going to UPDATE in the database
+            $sqlParamValues['pImg'] = $newImgPath;
+
+            // Delete the old file from the server
+            if (!empty($oldImg) && file_exists(__DIR__ . "/" . $oldImg)) {
+                unlink(__DIR__ . "/" . $oldImg);
+            }
+        } else {
+            Errors::sendJsonFormatErr('ERR_UPLOAD_FAIL');
+            exit;
+        }
+    }
+
+    // 4. Build and execute the dynamic UPDATE query
+    if (count($sqlParamValues) > 0) {
+        $sql = "UPDATE poems SET ";
+        $setClauses = [];
+
+        foreach ($sqlParamValues as $field => $value) {
+            $setClauses[] = "$field = :$field";
+        }
+
+        $sql .= implode(', ', $setClauses);
+        $sql .= " WHERE id = :id AND createdById = :createdById";
+
+        // Add the WHERE clause parameters
+        $sqlParamValues['id'] = $id;
+        $sqlParamValues['createdById'] = $userId;
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($sqlParamValues);
+
+        // Optional: Check if rowCount is 0 (meaning no changes were made, or wrong ID/User)
+        // If a user submits the form without changing anything, rowCount is 0, so don't treat it as an error automatically.
+    }
+
+    // 5. Send success response
+    http_response_code(200);
+    echo json_encode([
+        'status' => 'success',
+        'message' => 'Poem updated successfully!'
+    ]);
+    exit;
+});
+```

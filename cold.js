@@ -121,8 +121,8 @@ $(document).ready(function () {
         const formData = new FormData(this);
 
         $.ajax({
-            url: 'poems',
-            type: 'PATCH',
+            url: '/poems/update',
+            type: 'POST',
             contentType: false,
             processData: false,
             data: formData,
@@ -141,7 +141,7 @@ $(document).ready(function () {
         e.preventDefault(); // Prevents the page from jumping if it's an <a> link or submitting if it's a button
 
         // flip invisiviliy 
-        $('#registerForm').toggle();
+        $('#registerForm').toggleClass('hidden');
     });
 });
 
@@ -149,7 +149,7 @@ $(document).ready(function () {
     $('#toggleLoginVisibility').on('click', function (e) {
         e.preventDefault(); 
 
-        $('#loginForm').toggle();
+        $('#loginForm').toggleClass('.hidden');
     });
 });
 
@@ -164,3 +164,15 @@ $(document).on('click', function (e) {
         $('.poemButtonsDiv').addClass('hidden');
     }
 });
+
+$(document).on('click', function(e){
+    const $clickedBtn = $(e.target).closest('#navBorgirMenuBtn'); 
+    if($clickedBtn.length){
+        const $currentM = $clickedBtn.next('.linksDiv');
+        $('.linksDiv').not($currentM).addClass('hidden'); 
+        $currentM.toggleClass('hidden'); 
+    } else {
+        $('.linksDiv').addClass('hidden'); 
+    }
+});
+

@@ -101,33 +101,103 @@ App::post("/poems", function () use ($pdo, $userId) {
 
 App::delete("/poems", function () use ($pdo) {
     parse_str(file_get_contents('php://input'), $_DELETE);
-    $poemId = $_DELETE['id']; 
-    $stmt = $pdo->query("SELECT img FROM poems WHERE id=:id");
-    $img = $stmt->fetchColumn(); 
+    $poemId = $_DELETE['id'];
+    $stmt = $pdo->query("SELECT pImg FROM poems WHERE id=:id");
+    $img = $stmt->fetchColumn();
 
-    unlink(__DIR__."/".$img); 
+    unlink(__DIR__ . "/" . $img);
     $pdo->prepare("DELETE FROM poems WHERE id=?")->execute([$poemId]);
 });
 
-App::patch("/poems", function () {
-    
+App::post("/poems/update", function () use ($pdo, $userId) {
+    $id = $_POST['id'] ?? null; 
+    if(!$id){
+        Errors::sendJsonFormatErr('ERR_MISSING_DATA');
+        exit; 
+    }
+
+    $req = [
+        'title' => $_POST['title'] ?? null,
+        'genre' => $_POST['genre'] ?? null,
+        'poem' => $_POST['poem'] ?? null,
+    ];
+
+    $sqlParamValues = array_filter($req, function ($value) {
+        return !empty($value);
+    });
+
+    $pImgFile = $_FILES['pImg'] ?? null; 
+
+    if($pImgFile && $pImgFile['error'] === UPLOAD_ERR_OK){
+        $finfo = finfo_open(FILEINFO_MIME_TYPE); 
+        $mimeType = finfo_file($finfo, $pImgFile['tmp_name']); 
+        finfo_close($finfo);
+
+        $allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        $allowedExes = ['png', 'jpg', 'jpeg', 'gif', 'webp'];  
+        $fileEx = strtolower(pathinfo($pImgFile['name'], PATHINFO_EXTENSION)); 
+
+        if(!in_array($mimeType, $allowedMimes) || !in_array($fileEx, $allowedExes)){
+            Errors::sendJsonFormatErr('ERR_INVALID_DATA');
+            exit;  
+        }
+
+        $stmt = $pdo->prepare("SELECT pImg FROM poems WHERE id = ? AND createdById = ?");
+        $stmt->execute([$id, $userId]); 
+        $oldImg = $stmt->fetchColumn(); 
+
+        $newImgPath = "/posts/" . uniqid('pic_').".".$fileEx; 
+        if(move_uploaded_file($pImgFile['tmp_name'], __DIR__."/".$newImgPath)){
+            $sqlParamValues['pImg'] = $newImgPath; 
+
+            if(!empty($oldImg) && file_exists(__DIR__."/".$oldImg)){
+                unlink(__DIR__."/".$oldImg); 
+            }
+        } else {
+            Errors::sendJsonFormatErr('ERR_UPLOAD_FAIL');
+            exit; 
+        }
+    }
+
+    if(count($sqlParamValues) > 0){
+        $sql = "UPDATE poems SET"; 
+        $setClauses = []; 
+
+        foreach($sqlParamValues as $field => $value){
+            $setClauses[] = "$field=:$field"; 
+        }
+
+        $sql .= implode(', ', $setClauses); 
+        $sql .= "WHERE id=:id AND createdById=:createdById"; 
+
+        $sqlParamValues['id'] = $id;
+        $sqlParamValues['createdById'] = $userId; 
+
+        $stmt = $pdo->prepare($sql); 
+        $stmt->execute($sqlParamValues); 
+    }
+    http_response_code(200); 
+    echo json_encode([
+        'status'=>'success',
+        'message'=>'YIPPIE SUCCESS!!!'
+    ]); 
 });
 
 // Auth 
 
-App::get("/me", function () use($pdo, $userId) {
-    $stmt = $pdo->prepare("SELECT * FROM poems WHERE createdById = :createdById"); 
-    $stmt->execute(['createdById'=>$userId]); 
+App::get("/me", function () use ($pdo, $userId) {
+    $stmt = $pdo->prepare("SELECT * FROM poems WHERE createdById = :createdById");
+    $stmt->execute(['createdById' => $userId]);
 
-    $userPoems = []; 
-    while($poem = $stmt->fetch(PDO::FETCH_ASSOC)){
+    $userPoems = [];
+    while ($poem = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $userPoems[] = [
             'id' => $poem['id'],
-            'title'=>$poem['title'],
+            'title' => $poem['title'],
             'genre' => $poem['genre'],
-            'poem'=>$poem['poem'], 
-            'pImg'=>'posts/'.$poem['pImg'],
-            'published'=>$poem['published']
+            'poem' => $poem['poem'],
+            'pImg' => 'posts/' . $poem['pImg'],
+            'published' => $poem['published']
         ];
     }
 

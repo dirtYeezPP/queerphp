@@ -13,21 +13,25 @@
 <body>
     <header>
         <nav>
-            <a href="/">HOME</a>
-            <a href="/poems">POEMS</a>
-            <?php if(isset($userId)): ?>
-                <a href="/logout">LOG OUT</a>
-                <a href="/me">PROFILE</a>
-            <?php else: ?>
-                <button id="authVisibility">AUTHBTN</button>
-            <?php endif; ?>
-            
-            <div class="userGreetingDiv">
+            <button id="navBorgirMenuBtn">&equiv;</button>
+            <div class="linksDiv hidden">
+                <a href="/">HOME</a>
+                <a href="/poems">POEMS</a>
+                <?php if (isset($userId)): ?>
+                    <a href="/logout">LOG OUT</a>
+                    <a href="/me">PROFILE</a>
+                <?php else: ?>
+                    <button id="authVisibility">AUTHBTN</button>
+                <?php endif; ?>
+            </div>
+
+            <div class="GreetingDiv">
                 <?php if (isset($userId)): ?>
                     <h3>HELLO $userName</h3>
                 <?php else: ?>
                     <h3>Hello Stranger</h3>
                 <?php endif; ?>
             </div>
+
         </nav>
     </header>
