@@ -58,9 +58,9 @@ $(document).ready(function () {
         $.ajax({
             url: '/auth/register',
             type: 'POST',
-            contentType: "application/json",
+            contentType: 'application/json',
             data: JSON.stringify(formData),
-            dataType: "json",
+            dataType: 'json',
 
             success: function (response) {
                 handleAjaxSuccess(response, '#registerForm'); 

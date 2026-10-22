@@ -110,10 +110,10 @@ App::delete("/poems", function () use ($pdo) {
 });
 
 App::post("/poems/update", function () use ($pdo, $userId) {
-    $id = $_POST['id'] ?? null; 
-    if(!$id){
+    $id = $_POST['id'] ?? null;
+    if (!$id) {
         Errors::sendJsonFormatErr('ERR_MISSING_DATA');
-        exit; 
+        exit;
     }
 
     $req = [
@@ -126,61 +126,61 @@ App::post("/poems/update", function () use ($pdo, $userId) {
         return !empty($value);
     });
 
-    $pImgFile = $_FILES['pImg'] ?? null; 
+    $pImgFile = $_FILES['pImg'] ?? null;
 
-    if($pImgFile && $pImgFile['error'] === UPLOAD_ERR_OK){
-        $finfo = finfo_open(FILEINFO_MIME_TYPE); 
-        $mimeType = finfo_file($finfo, $pImgFile['tmp_name']); 
+    if ($pImgFile && $pImgFile['error'] === UPLOAD_ERR_OK) {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $pImgFile['tmp_name']);
         finfo_close($finfo);
 
         $allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-        $allowedExes = ['png', 'jpg', 'jpeg', 'gif', 'webp'];  
-        $fileEx = strtolower(pathinfo($pImgFile['name'], PATHINFO_EXTENSION)); 
+        $allowedExes = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
+        $fileEx = strtolower(pathinfo($pImgFile['name'], PATHINFO_EXTENSION));
 
-        if(!in_array($mimeType, $allowedMimes) || !in_array($fileEx, $allowedExes)){
+        if (!in_array($mimeType, $allowedMimes) || !in_array($fileEx, $allowedExes)) {
             Errors::sendJsonFormatErr('ERR_INVALID_DATA');
-            exit;  
+            exit;
         }
 
         $stmt = $pdo->prepare("SELECT pImg FROM poems WHERE id = ? AND createdById = ?");
-        $stmt->execute([$id, $userId]); 
-        $oldImg = $stmt->fetchColumn(); 
+        $stmt->execute([$id, $userId]);
+        $oldImg = $stmt->fetchColumn();
 
-        $newImgPath = "/posts/" . uniqid('pic_').".".$fileEx; 
-        if(move_uploaded_file($pImgFile['tmp_name'], __DIR__."/".$newImgPath)){
-            $sqlParamValues['pImg'] = $newImgPath; 
+        $newImgPath = "/posts/" . uniqid('pic_') . "." . $fileEx;
+        if (move_uploaded_file($pImgFile['tmp_name'], __DIR__ . "/" . $newImgPath)) {
+            $sqlParamValues['pImg'] = $newImgPath;
 
-            if(!empty($oldImg) && file_exists(__DIR__."/".$oldImg)){
-                unlink(__DIR__."/".$oldImg); 
+            if (!empty($oldImg) && file_exists(__DIR__ . "/" . $oldImg)) {
+                unlink(__DIR__ . "/" . $oldImg);
             }
         } else {
             Errors::sendJsonFormatErr('ERR_UPLOAD_FAIL');
-            exit; 
+            exit;
         }
     }
 
-    if(count($sqlParamValues) > 0){
-        $sql = "UPDATE poems SET"; 
-        $setClauses = []; 
+    if (count($sqlParamValues) > 0) {
+        $sql = "UPDATE poems SET";
+        $setClauses = [];
 
-        foreach($sqlParamValues as $field => $value){
-            $setClauses[] = "$field=:$field"; 
+        foreach ($sqlParamValues as $field => $value) {
+            $setClauses[] = "$field=:$field";
         }
 
-        $sql .= implode(', ', $setClauses); 
-        $sql .= "WHERE id=:id AND createdById=:createdById"; 
+        $sql .= implode(', ', $setClauses);
+        $sql .= "WHERE id=:id AND createdById=:createdById";
 
         $sqlParamValues['id'] = $id;
-        $sqlParamValues['createdById'] = $userId; 
+        $sqlParamValues['createdById'] = $userId;
 
-        $stmt = $pdo->prepare($sql); 
-        $stmt->execute($sqlParamValues); 
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($sqlParamValues);
     }
-    http_response_code(200); 
+    http_response_code(200);
     echo json_encode([
-        'status'=>'success',
-        'message'=>'YIPPIE SUCCESS!!!'
-    ]); 
+        'status' => 'success',
+        'message' => 'YIPPIE SUCCESS!!!'
+    ]);
 });
 
 // Auth 
@@ -209,10 +209,10 @@ App::post("/auth/register", function () use ($pdo) {
     $hashedPassword = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
     $req = [
-        'username' => $_POST['username'],
-        'pseudonym' => $_POST['pseudonym'],
-        'email' => $_POST['email'],
-        'hashedPassword' => $hashedPassword
+        "username" => $_POST['username'],
+        "pseudonym" => $_POST['pseudonym'],
+        "email" => $_POST['email'],
+        "hashedPassword" => $hashedPassword
     ];
 
     $checksql = "SELECT * FROM users WHERE email = :email";
@@ -233,13 +233,13 @@ App::post("/auth/register", function () use ($pdo) {
         'status' => 'success',
         'message' => 'Success!!!!'
     ]);
-    exit;
+    // exit;
 });
 
 App::post("/auth/login", function () use ($pdo) {
     header('Content-Type: application/json');
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+    $email = $_POST['logEmail'];
+    $password = $_POST['logPassword'];
 
     $sql = "SELECT * FROM users where email=:email";
     $stmt = $pdo->prepare($sql);

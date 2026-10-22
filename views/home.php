@@ -3,7 +3,7 @@
 
 <main>
     <div class="registerFormDiv hidden" id="registerFormDiv">
-        <form action="" id="registerForm" method="post">
+        <form action="" id="registerForm">
             <input type="text" name="username" id="username" placeholder="username">
             <input type="text" name="pseudonym" id="pseudonym" placeholder="pseudonym">
             <input type="text" name="email" id="email" placeholder="email">
@@ -15,7 +15,7 @@
     </div>
 
     <div class="loginFormDiv hidden" id="loginFormDiv">
-        <form action="" id="loginForm" method="post">
+        <form action="" id="loginForm">
             <input type="text" name="email" id="logEmail" placeholder="email">
             <input type="text" name="password" id="logPassword" placeholder="password">
             <button type="submit">LOGIN</button>
