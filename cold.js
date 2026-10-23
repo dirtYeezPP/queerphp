@@ -58,8 +58,8 @@ $(document).ready(function () {
         $.ajax({
             url: '/auth/register',
             type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(formData),
+            // contentType: 'application/json',
+            data: formData,
             dataType: 'json',
 
             success: function (response) {
@@ -82,12 +82,14 @@ $(document).ready(function () {
         $.ajax({
             url: '/auth/login',
             type: 'POST',
-            contentType: "application/json",
-            data: JSON.stringify(formData),
-            dataType: "json",
+            // contentType: "application/json",
+            data: formData,
+            dataType: 'json',
 
             success: function (response) {
                 handleAjaxSuccess(response, '#loginForm');
+                // window.location.reload();
+                window.location.href = '/me';
             },
             error: handleAjaxError
         });

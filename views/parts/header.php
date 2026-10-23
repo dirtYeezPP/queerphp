@@ -27,7 +27,7 @@
 
             <div class="GreetingDiv">
                 <?php if (isset($userId)): ?>
-                    <h3>HELLO $userName</h3>
+                    <h3>HELLO <?= htmlspecialchars($username) ?></h3>
                 <?php else: ?>
                     <h3>Hello Stranger</h3>
                 <?php endif; ?>

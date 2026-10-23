@@ -5,7 +5,8 @@ require_once 'source/connect.php';
 require_once 'source/helpers.php';
 global $pdo;
 
-session_start(['cookie_httponly' => true, 'cookie_samesite' => 'Lax']);
+// session_start(['cookie_httponly' => true, 'cookie_samesite' => 'Lax']);
+session_start(); 
 
 $isLoggedIn = isset($_SESSION['id']);
 $username = $isLoggedIn ? $_SESSION['name'] : null;
@@ -185,7 +186,7 @@ App::post("/poems/update", function () use ($pdo, $userId) {
 
 // Auth 
 
-App::get("/me", function () use ($pdo, $userId) {
+App::get("/me", function () use ($pdo, $userId, $username) {
     $stmt = $pdo->prepare("SELECT * FROM poems WHERE createdById = :createdById");
     $stmt->execute(['createdById' => $userId]);
 
@@ -205,7 +206,13 @@ App::get("/me", function () use ($pdo, $userId) {
 });
 
 App::post("/auth/register", function () use ($pdo) {
-    header('Content-Type: application/json');
+    // header('Content-Type: application/json');
+    // $data = json_decode(file_get_contents('php://input'), true); 
+    // if(!$data){
+    //     Errors::sendJsonFormatErr('ERR_INVALID_DATA'); 
+    //     exit; 
+    // }
+
     $hashedPassword = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
     $req = [
@@ -237,9 +244,16 @@ App::post("/auth/register", function () use ($pdo) {
 });
 
 App::post("/auth/login", function () use ($pdo) {
-    header('Content-Type: application/json');
-    $email = $_POST['logEmail'];
-    $password = $_POST['logPassword'];
+    // header('Content-Type: application/json');
+    // $data = json_decode(file_get_contents('php://input'), true); 
+
+    // if(!$_POST){
+    //     Errors::sendJsonFormatErr('ERR_INVALID_DATA');
+    //     exit; 
+    // }
+
+    $email = $_POST['email'];
+    $password = $_POST['password'];
 
     $sql = "SELECT * FROM users where email=:email";
     $stmt = $pdo->prepare($sql);

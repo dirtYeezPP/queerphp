@@ -2272,4 +2272,15 @@ App::post("/poems/update", function () use ($pdo, $userId) {
     ]);
     exit;
 });
+
+
+
+$json = file_get_contents('php://input');
+    $data = json_decode($json, true);
+
+    // Make sure data exists before proceeding
+    if (!$data) {
+        Errors::sendJsonFormatErr('ERR_INVALID_JSON');
+        exit;
+    }
 ```
