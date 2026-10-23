@@ -197,7 +197,7 @@ App::get("/me", function () use ($pdo, $userId, $username) {
             'title' => $poem['title'],
             'genre' => $poem['genre'],
             'poem' => $poem['poem'],
-            'pImg' => 'posts/' . $poem['pImg'],
+            'pImg' => $poem['pImg'],
             'published' => $poem['published']
         ];
     }

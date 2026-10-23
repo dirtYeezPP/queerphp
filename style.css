@@ -107,7 +107,7 @@ button[type="submit"]{
     cursor: pointer; 
 }
 
-.podium {
+.podium, .userPostsDiv{
     display: grid;
     /* Automatically creates responsive columns that don't shrink below 280px */
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -115,7 +115,7 @@ button[type="submit"]{
     margin-top: 30px;
 }
 
-.poem-card {
+.poem-card, .userPost-card{
     background: white;
     border-radius: 10px;
     overflow: hidden;
@@ -129,26 +129,30 @@ button[type="submit"]{
     transform: translateY(-5px);
 }
 
-.pImg img {
+.userPost-card:hover{
+    transform: translateY(-5px); 
+}
+
+.pImg, .userPostImgDiv img {
     width: 100%;
     height: 200px;
     object-fit: cover; /* Prevents image stretching */
     border-bottom: 3px solid var(--text-color);
 }
 
-.poem-card h3 {
+.poem-card, .userPost-card h3 {
     margin: 15px 15px 5px 15px;
     font-size: 1.2rem;
     color: #222;
 }
 
-.poem-card p {
+.poem-card, .userPost-card p {
     margin: 0 15px 10px 15px;
     font-size: 0.95rem;
     color: #555;
 }
 
-.poem-card p:nth-of-type(2) {
+.poem-card, .userPost-card p:nth-of-type(2) {
     flex-grow: 1; /* Pushes the author/date info to the bottom */
     font-style: italic;
     color: #333;

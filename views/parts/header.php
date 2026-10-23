@@ -1,4 +1,15 @@
 <!-- views/partials/header.php -->
+<?php 
+if(session_status() == PHP_SESSION_NONE){
+    session_start(); 
+}
+
+$isLoggedIn = isset($_SESSION['id']);
+$username = $isLoggedIn ? $_SESSION['name'] : null;
+$userId = $isLoggedIn ? $_SESSION['id'] : null; 
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 

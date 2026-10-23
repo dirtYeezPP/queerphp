@@ -2283,4 +2283,18 @@ $json = file_get_contents('php://input');
         Errors::sendJsonFormatErr('ERR_INVALID_JSON');
         exit;
     }
+
+
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Grab the variables. If they don't exist in the session, set them to null.
+$userId = $_SESSION['userId'] ?? null;
+$username = $_SESSION['username'] ?? null;
+?>
+<!DOCTYPE html>
+<html lang="en">
+<!-- The rest of your HTML starts here -->
 ```
