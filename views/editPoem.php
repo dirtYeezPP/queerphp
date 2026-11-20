@@ -19,6 +19,11 @@
             <button type="submit">SUBMIT</button>
         </form>
     </div>
+
+    <div id="responseMessage" style="border:2px solid purple;">
+        <!-- response message will show here  -->
+    </div>
+
 </main>
     
 
