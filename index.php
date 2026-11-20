@@ -172,4 +172,3 @@ App::get("/auth/logout", function () {
     exit; 
 }); 
 
-// App::get('/errors/$errorCode', function ($errorCode) {});
