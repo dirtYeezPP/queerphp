@@ -17,7 +17,7 @@
     <div class="loginFormDiv hidden" id="loginFormDiv">
         <form action="" id="loginForm">
             <input type="text" name="email" id="logEmail" placeholder="email">
-            <input type="text" name="password" id="logPassword" placeholder="password">
+            <input type="password" name="password" id="logPassword" placeholder="password">
             <button type="submit">LOGIN</button>
         </form>
     </div>
