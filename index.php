@@ -108,13 +108,11 @@ App::post("/poems/update", function () use ($repo, $userId) {
 
 App::get('poems/edit', function() use($repo, $userId) {
     if(!$userId) {
-        header('Location: /'); 
-        exit; 
+        Errors::showPage('ERR_LOCKED_OUT'); 
     }
     $poem = $repo->findOwned((int)($_GET['id'] ?? 0), $userId); 
     if(!$poem) {
-        header('Location: /me'); 
-        exit; 
+        Errors::showPage('ERR_NOT_FOUND'); 
     }
 
     include 'views/editPoem.php'; 
