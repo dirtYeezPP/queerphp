@@ -25,269 +25,151 @@ App::get("/", function () use($userId) {
     include('views/home.php');
 });
 
-App::get("/poems", function () use ($pdo) {
-
-    $sql = "
-        SELECT 
-            p.id, p.title, p.genre, p.poem, p.pImg, p.published, p.createdById,
-            u.pseudonym, u.username
-        FROM poems p 
-        LEFT JOIN users u ON p.createdById = u.userId
-    ";
-
-    $stmt = $pdo->query($sql);
-    $poems = [];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $poems[] = [
-            'id' => $row['id'],
-            'title' => $row['title'],
-            'genre' => $row['genre'],
-            'poem' => $row['poem'],
-            'pImg' => $row['pImg'],
-            'published' => $row['published'],
-            'createdById' => $row['createdById'],
-            'pseudonym' => $row['pseudonym'],
-            'username' => $row['username'] ?? ''
-        ];
-    }
-
-    include("views/poems.php");
+App::get("/poems", function () use ($repo, $userId) {
+    $poems = $repo->all(); 
+    include 'views/poems.php'; //$userId needed for ts
 });
 
-App::post("/poems", function () use ($pdo, $userId) {
-    header('Content-Type: application/json');
-    // $newPoem = json_decode(file_get_contents('php://input'), true);
+App::post("/poems", function () use ($repo, $userId) {
+    requireLogin($userId); 
 
-    if (!isset($_FILES['pImg']) || $_FILES['pImg']['error'] != UPLOAD_ERR_OK) {
-        Errors::sendJsonFormatErr('ERR_INVALID_DATA');
-        exit;
+    $title = trim($_POST['title'] ?? ''); 
+    $genre = trim($_POST['genre'] ?? '');
+    $poem = trim($_POST['poem'] ?? '');
+
+    if($title === '' || $genre === '' || $poem === '') {
+        Errors::sendJsonFormatErr('ERR_MISSING_DATA'); 
+        exit; 
     }
 
-    $allowedExes = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
-    $fileName = basename($_FILES['pImg']['name']);
-    $tmpName = $_FILES['pImg']['tmp_name'];
-    $fileEx = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mimeType = finfo_file($finfo, $tmpName);
-    finfo_close($finfo);
-
-    $allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-    if (!in_array($mimeType, $allowedMimes)) {
-        Errors::sendJsonFormatErr('ERR_INVALID_DATA');
-        exit;
+    $img = ImageUploader::save($_FILES['pImg'] ?? null); 
+    if(!$img){
+        Errors::sendJsonFormatErr('ERR_INVALID_DATA'); 
+        exit; 
     }
 
-    if (!in_array($fileEx, $allowedExes)) {
-        Errors::sendJsonFormatErr('ERR_INVALID_DATA');
-        exit;
-    }
+    $repo->create([
+        'title' => $title, 
+        'genre' => $genre, 
+        'poem' => $poem, 
+        'pImg' => $img, 
+        'published' => date('Y-m-d H:i:s'), 
+        'createdById' => $userId,
+    ]); 
 
-    $uniqueFileName = 'posts/' . uniqid('pic_') . '.' . $fileEx;
-    if (!move_uploaded_file($_FILES['pImg']['tmp_name'], (__DIR__ . "/" . $uniqueFileName))) {
-        Errors::sendJsonFormatErr('ERR_UPLOAD_FAIL');
-        exit;
-    }
-
-    $req = [
-        'title' => $_POST['title'],
-        'genre' => $_POST['genre'],
-        'poem' => $_POST['poem'],
-        'pImg' => $uniqueFileName,
-        'published' => date('Y/m/d H:i:s'),
-        'createdById' => $userId
-    ];
-
-    $sql = "INSERT INTO poems (title, genre, poem, pImg, published, createdById) VALUES (:title, :genre, :poem, :pImg, :published, :createdById )";
-    $pdo->prepare($sql)->execute($req);
-
-    http_response_code(200);
-    echo json_encode([
-        'status' => 'success',
-        'message' => 'Success!!!!'
-    ]);
-    exit;
+    jsonSuccess('Poem Created! yayy'); 
 });
 
 App::delete("/poems", function () use ($pdo) {
-    parse_str(file_get_contents('php://input'), $_DELETE);
-    $poemId = $_DELETE['id'];
-    $stmt = $pdo->query("SELECT pImg FROM poems WHERE id=:id");
-    $img = $stmt->fetchColumn();
+    requireLogin($userId);
+    parse_str(file_get_contents('php://input'), $data); 
+    $poem = $repo->findOwned((int)($data['id'] ?? 0), $userId); 
+    if(!$poem) {
+        Errors::sendJsonFormatErr('ERR_INVALID_DATA'); 
+        exit; 
+    }
 
-    unlink(__DIR__ . "/" . $img);
-    $pdo->prepare("DELETE FROM poems WHERE id=?")->execute([$poemId]);
+    ImageUploader::delete($poem['pImg']); 
+    $repo->delete($poem['id'], $userId); 
+
+    jsonSuccess('Poem deleted'); 
 });
 
-App::post("/poems/update", function () use ($pdo, $userId) {
-    $id = $_POST['id'] ?? null;
-    if (!$id) {
-        Errors::sendJsonFormatErr('ERR_MISSING_DATA');
-        exit;
+App::post("/poems/update", function () use ($repo, $userId) {
+    requireLogin($userId); 
+    $poem = $repo->findOwned((int)($_POST['id'] ?? 0), $userId); 
+    if(!$poem) {
+        Errors::sendJsonFormatErr('ERR_MISSING_DATA'); 
+        exit; 
     }
 
-    $req = [
-        'title' => $_POST['title'] ?? null,
-        'genre' => $_POST['genre'] ?? null,
-        'poem' => $_POST['poem'] ?? null,
-    ];
+    $fields = array_filter([
+        'title' => trim($_POST['title'] ?? ''), 
+        'genre' => trim($_POST['genre'] ?? ''), 
+        'poem' => trim($_POST['poem'] ?? '')
+    ], fn($value) => $value !=== '');
 
-    $sqlParamValues = array_filter($req, function ($value) {
-        return !empty($value);
-    });
-
-    $pImgFile = $_FILES['pImg'] ?? null;
-
-    if ($pImgFile && $pImgFile['error'] === UPLOAD_ERR_OK) {
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mimeType = finfo_file($finfo, $pImgFile['tmp_name']);
-        finfo_close($finfo);
-
-        $allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-        $allowedExes = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
-        $fileEx = strtolower(pathinfo($pImgFile['name'], PATHINFO_EXTENSION));
-
-        if (!in_array($mimeType, $allowedMimes) || !in_array($fileEx, $allowedExes)) {
-            Errors::sendJsonFormatErr('ERR_INVALID_DATA');
-            exit;
+    $hasNewImg = isset($_FILES['pImg']) && $_FILES['pImg']['error'] !== UPLOAD_ERR_NO_FILE;
+    if($hasNewImg) {
+        $newImg = ImageUploader::save($_FILES['pImg']); 
+        if(!$newImg) {
+            Errors::sendJsonFormatErr('ERR_INVALID_DATA'); 
+            exit; 
         }
-
-        $stmt = $pdo->prepare("SELECT pImg FROM poems WHERE id = ? AND createdById = ?");
-        $stmt->execute([$id, $userId]);
-        $oldImg = $stmt->fetchColumn();
-
-        $newImgPath = "/posts/" . uniqid('pic_') . "." . $fileEx;
-        if (move_uploaded_file($pImgFile['tmp_name'], __DIR__ . "/" . $newImgPath)) {
-            $sqlParamValues['pImg'] = $newImgPath;
-
-            if (!empty($oldImg) && file_exists(__DIR__ . "/" . $oldImg)) {
-                unlink(__DIR__ . "/" . $oldImg);
-            }
-        } else {
-            Errors::sendJsonFormatErr('ERR_UPLOAD_FAIL');
-            exit;
-        }
+        $fields['pImg'] = $newImg; 
     }
 
-    if (count($sqlParamValues) > 0) {
-        $sql = "UPDATE poems SET";
-        $setClauses = [];
-
-        foreach ($sqlParamValues as $field => $value) {
-            $setClauses[] = "$field=:$field";
-        }
-
-        $sql .= implode(', ', $setClauses);
-        $sql .= "WHERE id=:id AND createdById=:createdById";
-
-        $sqlParamValues['id'] = $id;
-        $sqlParamValues['createdById'] = $userId;
-
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($sqlParamValues);
+    $repo->update($poem['id'], $userId, $fields); 
+    if($hasNewImg) {
+        ImageUploader::delete($poem['pImg']); 
     }
-    http_response_code(200);
-    echo json_encode([
-        'status' => 'success',
-        'message' => 'YIPPIE SUCCESS!!!'
-    ]);
+    jsonSuccess('poem updated yay'); 
 });
+
+App::get('poems/edit', function() use($repo, $userId) {
+    if(!$userId) {
+        header('Location: /'); 
+        exit; 
+    }
+    $poem = $repo->findOwned((int)($_GET['id'] ?? 0), $userId); 
+    if(!$poem) {
+        header('Location: /me'); 
+        exit; 
+    }
+
+    include 'views/editPoem.php'; 
+})
 
 // Auth 
 
-App::get("/me", function () use ($pdo, $userId, $username) {
-    $stmt = $pdo->prepare("SELECT * FROM poems WHERE createdById = :createdById");
-    $stmt->execute(['createdById' => $userId]);
-
-    $userPoems = [];
-    while ($poem = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $userPoems[] = [
-            'id' => $poem['id'],
-            'title' => $poem['title'],
-            'genre' => $poem['genre'],
-            'poem' => $poem['poem'],
-            'pImg' => $poem['pImg'],
-            'published' => $poem['published']
-        ];
-    }
-
-    include("views/profile.php");
-});
-
-App::post("/auth/register", function () use ($pdo) {
-    // header('Content-Type: application/json');
-    // $data = json_decode(file_get_contents('php://input'), true); 
-    // if(!$data){
-    //     Errors::sendJsonFormatErr('ERR_INVALID_DATA'); 
-    //     exit; 
-    // }
-
-    $hashedPassword = password_hash($_POST['password'], PASSWORD_DEFAULT);
-
-    $req = [
-        "username" => $_POST['username'],
-        "pseudonym" => $_POST['pseudonym'],
-        "email" => $_POST['email'],
-        "hashedPassword" => $hashedPassword
-    ];
-
-    $checksql = "SELECT * FROM users WHERE email = :email";
-    $checkStmt = $pdo->prepare($checksql);
-    $checkStmt->execute(['email' => $req['email']]);
-
-    $emailExists = $checkStmt->fetchColumn() > 0;
-    if ($emailExists) {
-        Errors::sendJsonFormatErr('ERR_INCORRECT_DATA');
+App::get("/me", function () use ($repo, $userId, $username) {
+    if(!$userId) {
+        header('Location: /'); 
         exit;
     }
-
-    $sql = "INSERT INTO users (username, pseudonym, email, hashedPassword) VALUES (:username, :pseudonym, :email, :hashedPassword)";
-    $pdo->prepare($sql)->execute($req);
-
-    http_response_code(200);
-    echo json_encode([
-        'status' => 'success',
-        'message' => 'Success!!!!'
-    ]);
-    // exit;
+    $userPoems = $repo->byUser($userId); 
+    include 'views/profile.php'; 
 });
 
-App::post("/auth/login", function () use ($pdo) {
-    // header('Content-Type: application/json');
-    // $data = json_decode(file_get_contents('php://input'), true); 
+App::post("/auth/register", function () use ($users) {
+    $username = trim($_POST['username'] ?? ''); 
+    $pseudonym = trim($_POST['pseudonym'] ?? ''); 
+    $email = trim($_POST['email'] ?? ''); 
+    $password = $_POST['passowrd'] ?? ''; 
 
-    // if(!$_POST){
-    //     Errors::sendJsonFormatErr('ERR_INVALID_DATA');
-    //     exit; 
-    // }
-
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-
-    $sql = "SELECT * FROM users where email=:email";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute(['email' => $email]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($user && password_verify($password, $user['hashedPassword'])) {
-        $_SESSION['id'] = $user['userId'];
-        $_SESSION['name'] = $user['username'];
-    } else {
-        Errors::sendJsonFormatErr('ERR_INCORRECT_DATA');
+    if($username === '' || $email === '' || $password === '') {
+        Errors::sendJsonFormatErr('ERR_MISSING_DATA'); 
+        exit; 
+    }
+    if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        Errors::sendJsonFormatErr('ERR_INVALID_DATA'); 
+        exit; 
+    }
+    if($users->emailExists($email)) {
+        Errors::sendJsonFormatErr('ERR_INCORRECT_DATA'); 
         exit;
     }
+    $users->create($username, $pseudonym, $email, $password); 
+    jsonSuccess('Acc created'); 
+});
 
-    http_response_code(200);
-    echo json_encode([
-        'status' => 'success',
-        'message' => 'Success!!!!'
-    ]);
-    exit;
+App::post("/auth/login", function () use ($users) {
+    $user = $users->checkLogin(trim($_POST['email'] ?? ''), $_POST['password'] ?? ''); 
+    if($user) {
+        Errors::sendJsonFormatErr('ERR_INCORRECT_DATA'); 
+        exit; 
+    }
+    session_regenerate_id(true); 
+    $_SESSION['id'] = $user['userId']; 
+    $_SESSION['name'] = $user['username']; 
+    jsonSuccess('locked in'); 
 });
 
 App::get("/auth/logout", function () {
     $_SESSION = [];
     session_destroy();
+    header('Location: /'); //back to home page
+    exit; 
 }); 
 
 // App::get('/errors/$errorCode', function ($errorCode) {});
