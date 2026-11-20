@@ -98,17 +98,16 @@ $(document).ready(function () {
     });
 });
 
-$(document).ready(function () {
-    $($document).on('click', '.deletePostBtn', function (e) {
-        e.preventDefault();
-        const poemId = $this('id').data('id');
-        console.log("Id for poem:", poemId);
-    });
+$(document).on('click', '.deletePostBtn', function(e) {
+    e.preventDefault();
+    const $btn = $(this); 
+    const poemId = $btn.data('id'); 
+
+    if(!confirm('Delete ts poem?')) return; 
 
     $.ajax({
         url: '/poems',
         type: 'DELETE',
-        contentType: "application/json",
         data: { id: poemId },
         dataType: "json",
 
