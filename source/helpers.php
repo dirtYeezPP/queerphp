@@ -30,7 +30,7 @@ class Errors{
         'ERR_MISSING_DATA' => ['status'=>400, 'message'=>'ERR: Data is missing'],
         'ERR_INVALID_DATA'=> ['status'=>400, 'message'=>'ERR: Invalid data'],
         'ERR_LOCKED_OUT'=>['status'=>401, 'message'=>'ERR: Not authorized'],
-        'ERR_INCORRECT_DATA'=>['status'=>401, 'message'=>'ERR_ Incorrect data'],
+        'ERR_INCORRECT_DATA'=>['status'=>401, 'message'=>'ERR: Incorrect data'],
         'ERR_FORBIDDEN' => ['status'=>403, 'message'=>'ERR: Forbidden'], 
         'ERR_NOT_FOUND'=>['status'=>404, 'message'=>'ERR: Requested resource missing'],
         'ERR_UPLOAD_FAIL'=>['status'=>422, 'message'=>'ERR: Upload fail']
