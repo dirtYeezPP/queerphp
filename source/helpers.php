@@ -37,6 +37,8 @@ class Errors{
     ]; 
 
     public static function sendJsonFormatErr($errorCode){
+        header('Content-Type: application/json'); 
+
         $error = self::ERRORS[$errorCode]; 
         http_response_code($error['status']);
         echo json_encode([
