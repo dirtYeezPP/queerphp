@@ -147,7 +147,7 @@ $(document).ready(function () {
         e.preventDefault(); // Prevents the page from jumping if it's an <a> link or submitting if it's a button
 
         // flip invisiviliy 
-        $('#registerForm').toggleClass('hidden');
+        $('#registerFormDiv').toggleClass('hidden');
     });
 });
 
@@ -155,7 +155,7 @@ $(document).ready(function () {
     $('#toggleLoginVisibility').on('click', function (e) {
         e.preventDefault(); 
 
-        $('#loginForm').toggleClass('.hidden');
+        $('#loginFormDiv').toggleClass('hidden');
     });
 });
 
