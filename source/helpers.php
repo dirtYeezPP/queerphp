@@ -53,7 +53,19 @@ class Errors{
             'errorPath' => PATHS::PATH_PREFIX . 'errors/' . $errorCode
         ]); 
     }
-
 }
 
+// stop request if nobody is logged in. 
+function requireLogin($userId){
+    if(!$userId) {
+        Errors::sendJsonFormatErr('ERR_LOCKED_OUT'); 
+        exit; 
+    }
+}
 
+// send standard success answer & stop type shir
+function jsonSuccess($message) {
+    header('Content-Type: application/json'); 
+    echo json_encode(['status' => 'success', 'message'=>$message]); 
+    exit; 
+}
