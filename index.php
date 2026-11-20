@@ -8,6 +8,8 @@ require_once 'source/imageUploader.php'; // all logic for upload files
 require_once 'source/userRepo.php'; // all sql for users
 global $pdo;
 
+// httponly means JS cant read the session cookie (XSS)
+// samesite = the cookie isnt sent along from other sites forms (CSRF)
 // session_start(['cookie_httponly' => true, 'cookie_samesite' => 'Lax']);
 session_start(); 
 
