@@ -3,6 +3,9 @@
 require_once 'router.php';
 require_once 'source/connect.php';
 require_once 'source/helpers.php';
+require_once 'source/poemRepo.php'; // all sql for poems
+require_once 'source/imageUploader.php'; // all logic for upload files 
+require_once 'source/userRepo.php'; // all sql for users
 global $pdo;
 
 // session_start(['cookie_httponly' => true, 'cookie_samesite' => 'Lax']);
