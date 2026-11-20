@@ -19,7 +19,7 @@
             <?php foreach ($poems as $poem): ?>
                 <div class="poem-card">
                     <div class="pImg">
-                        <img src="<?= $poem['pImg'] ?>" alt="poem image">
+                        <img src="/<?= htmlspecialchars($poem['pImg'], '/') ?>" alt="poem image">
                     </div>
                     <h3><?= htmlspecialchars($poem['title']) ?></h3>
                     <p>Genre:<?= htmlspecialchars($poem['genre']) ?></p>
