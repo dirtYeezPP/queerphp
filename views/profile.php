@@ -11,13 +11,14 @@
                     <div class="borgirMenuContainer">
                         <button type="button" class="dotsBtn" aria-label="Post actions">&hellip;</button>
                         <div class="poemButtonsDiv hidden">
-                            <button type="button" class="editPostBtn">Edit Post</button>
-                            <button type="button" class="deletePostBtn">Delete Post</button>
+                            <!-- <button type="button" class="editPostBtn">Edit Post</button> -->
+                            <a href="/poems/edit?id=<?= $uP['id']?>" class="editPostBtn">Edit Post</a>
+                            <button type="button" class="deletePostBtn" data-id="<?= $uP['id'] ?>" >Delete Post</button>
                         </div>
                     </div>
 
                     <div class="userPostImgDiv">
-                        <img src="<?= $uP['pImg'] ?>" alt="poem pic">
+                        <img src="/<?= htmlspecialchars($uP['pImg'], '/') ?>" alt="poem pic">
                     </div>
                     <div class="userPoemTextDiv">
                         <h3><?= htmlspecialchars($uP['title']) ?></h3>

@@ -1,6 +1,6 @@
 // HELPER FUNCTIONS
 function handleAjaxSuccess(response, formSelector = null){
-    if(response.text === 'success'){
+    if(response.status === 'success'){
         $('#responseMessage').css('color', 'purple').text(response.message); 
         if(formSelector && $(formSelector).length){
             $(formSelector)[0].reset(); 
@@ -89,29 +89,33 @@ $(document).ready(function () {
             success: function (response) {
                 handleAjaxSuccess(response, '#loginForm');
                 // window.location.reload();
-                window.location.href = '/me';
+                if(response.status === 'success') {
+                    window.location.href = '/me';
+                }
             },
             error: handleAjaxError
         });
     });
 });
 
-$(document).ready(function () {
-    $($document).on('click', '.deletePostBtn', function (e) {
-        e.preventDefault();
-        const poemId = $this('id').data('id');
-        console.log("Id for poem:", poemId);
-    });
+$(document).on('click', '.deletePostBtn', function(e) {
+    e.preventDefault();
+    const $btn = $(this); 
+    const poemId = $btn.data('id'); 
+
+    if(!confirm('Delete ts poem?')) return; 
 
     $.ajax({
         url: '/poems',
         type: 'DELETE',
-        contentType: "application/json",
         data: { id: poemId },
         dataType: "json",
 
         success: function (response) {
             handleAjaxSuccess(response);
+            if(response.status === 'success') {
+                $btn.closest('.userPost-card').remove();
+            }
         },
         error: handleAjaxError
     });
@@ -128,9 +132,8 @@ $(document).ready(function () {
             contentType: false,
             processData: false,
             data: formData,
-            success: function (response) {
-                handleAjaxSuccess(response, '#editForm'); 
-            },
+            dataType: 'json', 
+            success: function (response) { handleAjaxSuccess(response, '#editForm'); },
             error: handleAjaxError
         });
     });
@@ -143,7 +146,7 @@ $(document).ready(function () {
         e.preventDefault(); // Prevents the page from jumping if it's an <a> link or submitting if it's a button
 
         // flip invisiviliy 
-        $('#registerForm').toggleClass('hidden');
+        $('#registerFormDiv').toggleClass('hidden');
     });
 });
 
@@ -151,7 +154,7 @@ $(document).ready(function () {
     $('#toggleLoginVisibility').on('click', function (e) {
         e.preventDefault(); 
 
-        $('#loginForm').toggleClass('.hidden');
+        $('#loginFormDiv').toggleClass('hidden');
     });
 });
 

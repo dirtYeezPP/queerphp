@@ -37,6 +37,8 @@ class Errors{
     ]; 
 
     public static function sendJsonFormatErr($errorCode){
+        header('Content-Type: application/json'); 
+
         $error = self::ERRORS[$errorCode]; 
         http_response_code($error['status']);
         echo json_encode([
@@ -52,6 +54,28 @@ class Errors{
         ]); 
     }
 
+    public static function showPage($errorCode) {
+        $error = self::ERRORS[$errorCode] ?? self::ERRORS['ERR_NOT_FOUND']; 
+        http_response_code($error['status']); 
+        $status = $error['status']; 
+        $message = $error['message']; 
+
+        include __DIR__ . '/../views/errors.php'; 
+        exit; 
+    }
 }
 
+// stop request if nobody is logged in. 
+function requireLogin($userId){
+    if(!$userId) {
+        Errors::sendJsonFormatErr('ERR_LOCKED_OUT'); 
+        exit; 
+    }
+}
 
+// send standard success answer & stop type shir
+function jsonSuccess($message) {
+    header('Content-Type: application/json'); 
+    echo json_encode(['status' => 'success', 'message'=>$message]); 
+    exit; 
+}
