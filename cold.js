@@ -1,6 +1,6 @@
 // HELPER FUNCTIONS
 function handleAjaxSuccess(response, formSelector = null){
-    if(response.text === 'success'){
+    if(response.status === 'success'){
         $('#responseMessage').css('color', 'purple').text(response.message); 
         if(formSelector && $(formSelector).length){
             $(formSelector)[0].reset(); 
@@ -89,7 +89,9 @@ $(document).ready(function () {
             success: function (response) {
                 handleAjaxSuccess(response, '#loginForm');
                 // window.location.reload();
-                window.location.href = '/me';
+                if(response.status === 'success') {
+                    window.location.href = '/me';
+                }
             },
             error: handleAjaxError
         });
@@ -112,6 +114,9 @@ $(document).ready(function () {
 
         success: function (response) {
             handleAjaxSuccess(response);
+            if(response.status === 'success') {
+                $btn.closest('.userPost-card').remove();
+            }
         },
         error: handleAjaxError
     });
@@ -128,9 +133,8 @@ $(document).ready(function () {
             contentType: false,
             processData: false,
             data: formData,
-            success: function (response) {
-                handleAjaxSuccess(response, '#editForm'); 
-            },
+            dataType: 'json', 
+            success: function (response) { handleAjaxSuccess(response, '#editForm'); },
             error: handleAjaxError
         });
     });
