@@ -17,7 +17,11 @@ $isLoggedIn = isset($_SESSION['id']);
 $username = $isLoggedIn ? $_SESSION['name'] : null;
 $userId = $isLoggedIn ? $_SESSION['id'] : null;
 
-App::get("/", function () {
+// create repositories once
+$repo = new PoemRepository($pdo); 
+$users = new UserRepository($pdo); 
+
+App::get("/", function () use($userId) {
     include('views/home.php');
 });
 
