@@ -53,6 +53,16 @@ class Errors{
             'errorPath' => PATHS::PATH_PREFIX . 'errors/' . $errorCode
         ]); 
     }
+
+    public static function showPage($errorCode) {
+        $error = self::ERRORS[$errorCode] ?? self::ERRORS['ERR_NOT_FOUND']; 
+        http_response_code($error['status']); 
+        $status = $error['status']; 
+        $message = $error['message']; 
+
+        include __DIR__ . '/../views/errors.php'; 
+        exit; 
+    }
 }
 
 // stop request if nobody is logged in. 
